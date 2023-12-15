@@ -31,6 +31,7 @@
 import sys
 from isaacgym import gymapi
 from isaacgym import gymutil
+from isaacgym.torch_utils import quat_apply
 import numpy as np
 import torch
 
@@ -83,10 +84,16 @@ class BaseTask():
         # create envs, sim and viewer
         self.create_sim()
         self.gym.prepare_sim(self.sim)
+        
+        #set viewer
+        self.set_viewer()
+        
 
+    def set_viewer(self):
         # todo: read from config
         self.enable_viewer_sync = True
         self.viewer = None
+        self.viewer_move=gymapi.Vec3(0,0,0)
 
         # if running with a viewer, set up keyboard shortcuts and camera
         if self.headless == False:
@@ -97,7 +104,25 @@ class BaseTask():
                 self.viewer, gymapi.KEY_ESCAPE, "QUIT")
             self.gym.subscribe_viewer_keyboard_event(
                 self.viewer, gymapi.KEY_V, "toggle_viewer_sync")
-
+            self.gym.subscribe_viewer_keyboard_event(
+                self.viewer, gymapi.KEY_R, "record_frames")
+            self.gym.subscribe_viewer_keyboard_event(
+                self.viewer, gymapi.KEY_W, "move_forward")
+            self.gym.subscribe_viewer_keyboard_event(
+                self.viewer, gymapi.KEY_S, "move_backward")
+            self.gym.subscribe_viewer_keyboard_event(
+                self.viewer, gymapi.KEY_A, "move_left")
+            self.gym.subscribe_viewer_keyboard_event(
+                self.viewer, gymapi.KEY_D, "move_right")
+            self.gym.subscribe_viewer_keyboard_event(
+                self.viewer, gymapi.KEY_Q, "move_down")
+            self.gym.subscribe_viewer_keyboard_event(
+                self.viewer, gymapi.KEY_E, "move_up")
+            self.gym.subscribe_viewer_keyboard_event(
+                self.viewer, gymapi.KEY_SPACE, "move_up")
+            self.gym.subscribe_viewer_keyboard_event(
+                self.viewer, gymapi.KEY_LEFT_SHIFT, "move_down")
+    
     def get_observations(self):
         return self.obs_buf
     
@@ -129,6 +154,20 @@ class BaseTask():
                     sys.exit()
                 elif evt.action == "toggle_viewer_sync" and evt.value > 0:
                     self.enable_viewer_sync = not self.enable_viewer_sync
+                elif evt.action == "record_frames" and evt.value > 0:
+                    print("FUNCTION NOT IMPLEMENTED YET!") #TODO: add record method
+                elif evt.action == "move_forward":
+                    self.viewer_move.z = evt.value*0.5
+                elif evt.action == "move_backward":
+                    self.viewer_move.z = -evt.value*0.5
+                elif evt.action == "move_left":
+                    self.viewer_move.x = evt.value*0.5
+                elif evt.action == "move_right":
+                    self.viewer_move.x = -evt.value*0.5
+                elif evt.action == "move_up":
+                    self.viewer_move.y = evt.value*0.5
+                elif evt.action == "move_down":
+                    self.viewer_move.y = -evt.value*0.5
 
             # fetch results
             if self.device != 'cpu':
@@ -140,5 +179,29 @@ class BaseTask():
                 self.gym.draw_viewer(self.viewer, self.sim, True)
                 if sync_frame_time:
                     self.gym.sync_frame_time(self.sim)
+                    
+                if ((self.viewer_move.x != 0.0) or (self.viewer_move.y != 0.0) or (self.viewer_move.z != 0.0)):
+                    viewer_pos = self.gym.get_viewer_camera_transform(
+                        self.viewer, None)
+                    viewer_trans_tensor = torch.tensor(
+                        [viewer_pos.p.x, viewer_pos.p.y, viewer_pos.p.z])
+                    viewer_quat_tensor = torch.tensor(
+                        [viewer_pos.r.x, viewer_pos.r.y, viewer_pos.r.z, viewer_pos.r.w])
+                    z = torch.tensor([0.0, 0.0, 1.0])
+                    look_at = quat_apply(viewer_quat_tensor, z)
+                    move_torch = torch.tensor(
+                        [self.viewer_move.x, 0, self.viewer_move.z])
+                    offset = quat_apply(viewer_quat_tensor, move_torch)
+                    offset[2] = self.viewer_move.y+offset[2]
+                    new_pos = offset+viewer_trans_tensor
+                    new_look = look_at+new_pos
+                    new_pos_gym = gymapi.Vec3(
+                        new_pos[0], new_pos[1], new_pos[2])
+                    new_look_gym = gymapi.Vec3(
+                        new_look[0], new_look[1], new_look[2])
+                    self.gym.viewer_camera_look_at(
+                        self.viewer, None, new_pos_gym, new_look_gym)    
+                    
+            
             else:
                 self.gym.poll_viewer_events(self.viewer)
