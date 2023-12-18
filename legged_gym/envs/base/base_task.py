@@ -1,6 +1,6 @@
 # SPDX-FileCopyrightText: Copyright (c) 2021 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: BSD-3-Clause
-# 
+#
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
 #
@@ -35,9 +35,9 @@ from isaacgym.torch_utils import quat_apply
 import numpy as np
 import torch
 
-# Base class for RL tasks
-class BaseTask():
 
+# Base class for RL tasks
+class BaseTask:
     def __init__(self, cfg, sim_params, physics_engine, sim_device, headless):
         self.gym = gymapi.acquire_gym()
 
@@ -49,10 +49,10 @@ class BaseTask():
         self.headless = headless
 
         # env device is GPU only if sim is on GPU and use_gpu_pipeline=True, otherwise returned tensors are copied to CPU by physX.
-        if sim_device_type=='cuda' and sim_params.use_gpu_pipeline:
+        if sim_device_type == "cuda" and sim_params.use_gpu_pipeline:
             self.device = self.sim_device
         else:
-            self.device = 'cpu'
+            self.device = "cpu"
 
         # graphics device for rendering, -1 for no rendering
         self.graphics_device_id = self.sim_device_id
@@ -69,14 +69,25 @@ class BaseTask():
         torch._C._jit_set_profiling_executor(False)
 
         # allocate buffers
-        self.obs_buf = torch.zeros(self.num_envs, self.num_obs, device=self.device, dtype=torch.float)
+        self.obs_buf = torch.zeros(
+            self.num_envs, self.num_obs, device=self.device, dtype=torch.float
+        )
         self.rew_buf = torch.zeros(self.num_envs, device=self.device, dtype=torch.float)
         self.reset_buf = torch.ones(self.num_envs, device=self.device, dtype=torch.long)
-        self.episode_length_buf = torch.zeros(self.num_envs, device=self.device, dtype=torch.long)
-        self.time_out_buf = torch.zeros(self.num_envs, device=self.device, dtype=torch.bool)
+        self.episode_length_buf = torch.zeros(
+            self.num_envs, device=self.device, dtype=torch.long
+        )
+        self.time_out_buf = torch.zeros(
+            self.num_envs, device=self.device, dtype=torch.bool
+        )
         if self.num_privileged_obs is not None:
-            self.privileged_obs_buf = torch.zeros(self.num_envs, self.num_privileged_obs, device=self.device, dtype=torch.float)
-        else: 
+            self.privileged_obs_buf = torch.zeros(
+                self.num_envs,
+                self.num_privileged_obs,
+                device=self.device,
+                dtype=torch.float,
+            )
+        else:
             self.privileged_obs_buf = None
             # self.num_privileged_obs = self.num_obs
 
@@ -85,48 +96,57 @@ class BaseTask():
         # create envs, sim and viewer
         self.create_sim()
         self.gym.prepare_sim(self.sim)
-        
-        #set viewer
+
+        # set viewer
         self.set_viewer()
-        
 
     def set_viewer(self):
         # todo: read from config
         self.enable_viewer_sync = True
         self.viewer = None
-        self.viewer_move=gymapi.Vec3(0,0,0)
+        self.viewer_move = gymapi.Vec3(0, 0, 0)
 
         # if running with a viewer, set up keyboard shortcuts and camera
         if self.headless == False:
             # subscribe to keyboard shortcuts
-            self.viewer = self.gym.create_viewer(
-                self.sim, gymapi.CameraProperties())
+            self.viewer = self.gym.create_viewer(self.sim, gymapi.CameraProperties())
             self.gym.subscribe_viewer_keyboard_event(
-                self.viewer, gymapi.KEY_ESCAPE, "QUIT")
+                self.viewer, gymapi.KEY_ESCAPE, "QUIT"
+            )
             self.gym.subscribe_viewer_keyboard_event(
-                self.viewer, gymapi.KEY_V, "toggle_viewer_sync")
+                self.viewer, gymapi.KEY_V, "toggle_viewer_sync"
+            )
             self.gym.subscribe_viewer_keyboard_event(
-                self.viewer, gymapi.KEY_R, "record_frames")
+                self.viewer, gymapi.KEY_R, "record_frames"
+            )
             self.gym.subscribe_viewer_keyboard_event(
-                self.viewer, gymapi.KEY_W, "move_forward")
+                self.viewer, gymapi.KEY_W, "move_forward"
+            )
             self.gym.subscribe_viewer_keyboard_event(
-                self.viewer, gymapi.KEY_S, "move_backward")
+                self.viewer, gymapi.KEY_S, "move_backward"
+            )
             self.gym.subscribe_viewer_keyboard_event(
-                self.viewer, gymapi.KEY_A, "move_left")
+                self.viewer, gymapi.KEY_A, "move_left"
+            )
             self.gym.subscribe_viewer_keyboard_event(
-                self.viewer, gymapi.KEY_D, "move_right")
+                self.viewer, gymapi.KEY_D, "move_right"
+            )
             self.gym.subscribe_viewer_keyboard_event(
-                self.viewer, gymapi.KEY_Q, "move_down")
+                self.viewer, gymapi.KEY_Q, "move_down"
+            )
             self.gym.subscribe_viewer_keyboard_event(
-                self.viewer, gymapi.KEY_E, "move_up")
+                self.viewer, gymapi.KEY_E, "move_up"
+            )
             self.gym.subscribe_viewer_keyboard_event(
-                self.viewer, gymapi.KEY_SPACE, "move_up")
+                self.viewer, gymapi.KEY_SPACE, "move_up"
+            )
             self.gym.subscribe_viewer_keyboard_event(
-                self.viewer, gymapi.KEY_LEFT_SHIFT, "move_down")
-    
+                self.viewer, gymapi.KEY_LEFT_SHIFT, "move_down"
+            )
+
     def get_observations(self):
         return self.obs_buf
-    
+
     def get_privileged_observations(self):
         return self.privileged_obs_buf
 
@@ -135,9 +155,13 @@ class BaseTask():
         raise NotImplementedError
 
     def reset(self):
-        """ Reset all robots"""
+        """Reset all robots"""
         self.reset_idx(torch.arange(self.num_envs, device=self.device))
-        obs, privileged_obs, _, _, _ = self.step(torch.zeros(self.num_envs, self.num_actions, device=self.device, requires_grad=False))
+        obs, privileged_obs, _, _, _ = self.step(
+            torch.zeros(
+                self.num_envs, self.num_actions, device=self.device, requires_grad=False
+            )
+        )
         return obs, privileged_obs
 
     def step(self, actions):
@@ -156,22 +180,22 @@ class BaseTask():
                 elif evt.action == "toggle_viewer_sync" and evt.value > 0:
                     self.enable_viewer_sync = not self.enable_viewer_sync
                 elif evt.action == "record_frames" and evt.value > 0:
-                    print("FUNCTION NOT IMPLEMENTED YET!") #TODO: add record method
+                    print("FUNCTION NOT IMPLEMENTED YET!")  # TODO: add record method
                 elif evt.action == "move_forward":
-                    self.viewer_move.z = evt.value*0.5
+                    self.viewer_move.z = evt.value * 0.5
                 elif evt.action == "move_backward":
-                    self.viewer_move.z = -evt.value*0.5
+                    self.viewer_move.z = -evt.value * 0.5
                 elif evt.action == "move_left":
-                    self.viewer_move.x = evt.value*0.5
+                    self.viewer_move.x = evt.value * 0.5
                 elif evt.action == "move_right":
-                    self.viewer_move.x = -evt.value*0.5
+                    self.viewer_move.x = -evt.value * 0.5
                 elif evt.action == "move_up":
-                    self.viewer_move.y = evt.value*0.5
+                    self.viewer_move.y = evt.value * 0.5
                 elif evt.action == "move_down":
-                    self.viewer_move.y = -evt.value*0.5
+                    self.viewer_move.y = -evt.value * 0.5
 
             # fetch results
-            if self.device != 'cpu':
+            if self.device != "cpu":
                 self.gym.fetch_results(self.sim, True)
 
             # step graphics
@@ -180,29 +204,33 @@ class BaseTask():
                 self.gym.draw_viewer(self.viewer, self.sim, True)
                 if sync_frame_time:
                     self.gym.sync_frame_time(self.sim)
-                    
-                if ((self.viewer_move.x != 0.0) or (self.viewer_move.y != 0.0) or (self.viewer_move.z != 0.0)):
-                    viewer_pos = self.gym.get_viewer_camera_transform(
-                        self.viewer, None)
+
+                if (
+                    (self.viewer_move.x != 0.0)
+                    or (self.viewer_move.y != 0.0)
+                    or (self.viewer_move.z != 0.0)
+                ):
+                    viewer_pos = self.gym.get_viewer_camera_transform(self.viewer, None)
                     viewer_trans_tensor = torch.tensor(
-                        [viewer_pos.p.x, viewer_pos.p.y, viewer_pos.p.z])
+                        [viewer_pos.p.x, viewer_pos.p.y, viewer_pos.p.z]
+                    )
                     viewer_quat_tensor = torch.tensor(
-                        [viewer_pos.r.x, viewer_pos.r.y, viewer_pos.r.z, viewer_pos.r.w])
+                        [viewer_pos.r.x, viewer_pos.r.y, viewer_pos.r.z, viewer_pos.r.w]
+                    )
                     z = torch.tensor([0.0, 0.0, 1.0])
                     look_at = quat_apply(viewer_quat_tensor, z)
                     move_torch = torch.tensor(
-                        [self.viewer_move.x, 0, self.viewer_move.z])
+                        [self.viewer_move.x, 0, self.viewer_move.z]
+                    )
                     offset = quat_apply(viewer_quat_tensor, move_torch)
-                    offset[2] = self.viewer_move.y+offset[2]
-                    new_pos = offset+viewer_trans_tensor
-                    new_look = look_at+new_pos
-                    new_pos_gym = gymapi.Vec3(
-                        new_pos[0], new_pos[1], new_pos[2])
-                    new_look_gym = gymapi.Vec3(
-                        new_look[0], new_look[1], new_look[2])
+                    offset[2] = self.viewer_move.y + offset[2]
+                    new_pos = offset + viewer_trans_tensor
+                    new_look = look_at + new_pos
+                    new_pos_gym = gymapi.Vec3(new_pos[0], new_pos[1], new_pos[2])
+                    new_look_gym = gymapi.Vec3(new_look[0], new_look[1], new_look[2])
                     self.gym.viewer_camera_look_at(
-                        self.viewer, None, new_pos_gym, new_look_gym)    
-                    
-            
+                        self.viewer, None, new_pos_gym, new_look_gym
+                    )
+
             else:
                 self.gym.poll_viewer_events(self.viewer)

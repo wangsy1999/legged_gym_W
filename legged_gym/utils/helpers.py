@@ -98,18 +98,18 @@ def parse_sim_params(args, cfg):
     if "sim" in cfg:
         # convert sim config from isaacgymenvs
         if cfg["sim"].get("up_axis") is not None:
-            if cfg["sim"]["up_axis"]=="z":
-                cfg["sim"]["up_axis"]=1 
-            elif cfg["sim"]["up_axis"]=="y":
-                cfg["sim"]["up_axis"]=0
+            if cfg["sim"]["up_axis"] == "z":
+                cfg["sim"]["up_axis"] = 1
+            elif cfg["sim"]["up_axis"] == "y":
+                cfg["sim"]["up_axis"] = 0
         if cfg["sim"]["physx"]["num_threads"] is None:
-            cfg["sim"]["physx"]["num_threads"]=10 # for CPU only
+            cfg["sim"]["physx"]["num_threads"] = 10  # for CPU only
         if cfg["sim"]["physx"]["solver_type"] is None:
             cfg["sim"]["physx"]["solver_type"] = 1
-        if cfg["sim"]["physx"].get("num_subscenes") is not None and cfg["sim"]["physx"]["num_subscenes"] is None:
-            cfg["sim"]["physx"]["num_subscenes"] =4 
-            
-                
+        if "num_subscenes" in cfg["sim"]["physx"]:
+            if cfg["sim"]["physx"]["num_subscenes"] is None:
+                cfg["sim"]["physx"]["num_subscenes"] = 4
+
         gymutil.parse_sim_config(cfg["sim"], sim_params)
 
     # Override num_threads if passed on the command line

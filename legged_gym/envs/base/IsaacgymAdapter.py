@@ -33,17 +33,21 @@ class IsaacGymEnvsAdaptionLayer(BaseTask):
 
         # set environment parameters and basic trainning parameters for IsaacGymEnvs adaption
         self.num_agents = self.cfg["env"].get("numAgents", 1)
-        self.num_observations =self.cfg["env"]["numObservations"]
+        self.num_observations = self.cfg["env"]["numObservations"]
         self.num_states = self.cfg["env"].get("numStates", 0)
         # TODO: add obs_space, state_space, act_space
         self.control_freq_inv = self.cfg["env"].get("controlFrequencyInv", 1)
         self.clip_obs = self.cfg["env"].get("clipObservations", np.Inf)
         self.clip_actions = self.cfg["env"].get("clipActions", np.Inf)
-        
-        cfg.env.num_observations=self.cfg["env"]["numObservations"]
-        cfg.env.num_actions=self.cfg["env"]["numActions"]
-        cfg.env.num_envs=self.cfg["env"]["numEnvs"]
-        
+
+        cfg.env.num_observations = self.cfg["env"]["numObservations"]
+        cfg.env.num_actions = self.cfg["env"]["numActions"]
+        cfg.env.num_envs = self.cfg["env"]["numEnvs"]
+        cfg.env.num_privileged_obs = (
+            self.cfg["env"]["num_privileged_obs"]
+            if "num_privileged_obs" in self.cfg["env"]
+            else None
+        )
 
         # Total number of training frames since the beginning of the experiment.
         # We get this information from the learning algorithm rather than tracking ourselves.
@@ -58,7 +62,7 @@ class IsaacGymEnvsAdaptionLayer(BaseTask):
         super().__init__(cfg, sim_params, physics_engine, sim_device, headless)
         self.allocate_extra_buffers()
         self.dt = self.sim_params.dt
- 
+
         if not self.headless:
             if self.cfg.get("viewer") is not None:
                 self.set_camera(self.cfg.viewer.pos, self.cfg.viewer.lookat)
@@ -233,7 +237,6 @@ class IsaacGymEnvsAdaptionLayer(BaseTask):
         )
 
         return actions
-
 
     ##############################################################################
 
