@@ -182,17 +182,17 @@ class BaseTask:
                 elif evt.action == "record_frames" and evt.value > 0:
                     print("FUNCTION NOT IMPLEMENTED YET!")  # TODO: add record method
                 elif evt.action == "move_forward":
-                    self.viewer_move.z = evt.value * 0.5
+                    self.viewer_move.z = evt.value * 0.2
                 elif evt.action == "move_backward":
-                    self.viewer_move.z = -evt.value * 0.5
+                    self.viewer_move.z = -evt.value * 0.2
                 elif evt.action == "move_left":
-                    self.viewer_move.x = evt.value * 0.5
+                    self.viewer_move.x = evt.value * 0.2
                 elif evt.action == "move_right":
-                    self.viewer_move.x = -evt.value * 0.5
+                    self.viewer_move.x = -evt.value * 0.2
                 elif evt.action == "move_up":
-                    self.viewer_move.y = evt.value * 0.5
+                    self.viewer_move.y = evt.value * 0.2
                 elif evt.action == "move_down":
-                    self.viewer_move.y = -evt.value * 0.5
+                    self.viewer_move.y = -evt.value * 0.2
 
             # fetch results
             if self.device != "cpu":

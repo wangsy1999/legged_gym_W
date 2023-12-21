@@ -39,14 +39,18 @@ if os.path.exists("./legged_gym/envs/CustomEnvironments"):
     from legged_gym.envs.CustomEnvironments import *
 
 from legged_gym.utils import get_args, task_registry
+from legged_gym.utils import ExperimentLogger
 import torch
 
 
 def train(args):
+    logdir = ExperimentLogger.generate_logdir(args.task)
+    ExperimentLogger.commit_experiment(logdir)  # force to commit expriment message
     env, env_cfg = task_registry.make_env(name=args.task, args=args)
     ppo_runner, train_cfg = task_registry.make_alg_runner(
-        env=env, name=args.task, args=args
+        env=env, name=args.task, args=args, log_root=logdir
     )
+    ExperimentLogger.save_hyper_params(logdir, env_cfg, train_cfg)
     ppo_runner.learn(
         num_learning_iterations=train_cfg.runner.max_iterations,
         init_at_random_ep_len=True,

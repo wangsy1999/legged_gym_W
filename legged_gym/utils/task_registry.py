@@ -165,6 +165,8 @@ class TaskRegistry:
             )
         elif log_root is None:
             log_dir = None
+        elif type(log_root) == dict:
+            log_dir = os.path.join(log_root["log_root"], log_root["log_dir"])
         else:
             log_dir = os.path.join(
                 log_root,
@@ -172,7 +174,6 @@ class TaskRegistry:
                 + "_"
                 + train_cfg.runner.run_name,
             )
-
         train_cfg_dict = class_to_dict(train_cfg)
         runner = OnPolicyRunner(env, train_cfg_dict, log_dir, device=args.rl_device)
         # save resume path before creating a new log_dir
