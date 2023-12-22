@@ -34,8 +34,8 @@ from typing import Tuple
 import torch
 import numpy as np
 
-from rsl_rl.env import VecEnv
-from rsl_rl.runners import OnPolicyRunner
+from legged_gym.algos.env import VecEnv
+from legged_gym.algos.runners import OnPolicyRunner
 
 from legged_gym import LEGGED_GYM_ROOT_DIR, LEGGED_GYM_ENVS_DIR
 from .helpers import (
@@ -154,14 +154,10 @@ class TaskRegistry:
         _, train_cfg = update_cfg_from_args(None, train_cfg, args)
 
         if log_root == "default":
-            log_root = os.path.join(
-                LEGGED_GYM_ROOT_DIR, "logs", train_cfg.runner.experiment_name
-            )
+            log_root = os.path.join(LEGGED_GYM_ROOT_DIR, "logs", train_cfg.runner.experiment_name)
             log_dir = os.path.join(
                 log_root,
-                datetime.now().strftime("%b%d_%H-%M-%S")
-                + "_"
-                + train_cfg.runner.run_name,
+                datetime.now().strftime("%b%d_%H-%M-%S") + "_" + train_cfg.runner.run_name,
             )
         elif log_root is None:
             log_dir = None
@@ -170,9 +166,7 @@ class TaskRegistry:
         else:
             log_dir = os.path.join(
                 log_root,
-                datetime.now().strftime("%b%d_%H-%M-%S")
-                + "_"
-                + train_cfg.runner.run_name,
+                datetime.now().strftime("%b%d_%H-%M-%S") + "_" + train_cfg.runner.run_name,
             )
         train_cfg_dict = class_to_dict(train_cfg)
         runner = OnPolicyRunner(env, train_cfg_dict, log_dir, device=args.rl_device)
