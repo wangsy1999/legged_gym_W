@@ -36,9 +36,9 @@ import statistics
 from torch.utils.tensorboard import SummaryWriter
 import torch
 
-from legged_gym.algos.algorithms import PPO
 from legged_gym.algos.modules import ActorCritic, ActorCriticRecurrent
 from legged_gym.algos.env import VecEnv
+from legged_gym.algos.algo_registry import get_algo_class
 
 
 class OnPolicyRunner:
@@ -56,8 +56,8 @@ class OnPolicyRunner:
         actor_critic: ActorCritic = actor_critic_class(
             self.env.num_obs, num_critic_obs, self.env.num_actions, **self.policy_cfg
         ).to(self.device)
-        alg_class = eval(self.cfg["algorithm_class_name"])  # PPO
-        self.alg: PPO = alg_class(actor_critic, device=self.device, **self.alg_cfg)
+        alg_class = get_algo_class(self.cfg["algorithm_class_name"])  # PPO
+        self.alg = alg_class(actor_critic, device=self.device, **self.alg_cfg)
         self.num_steps_per_env = self.cfg["num_steps_per_env"]
         self.save_interval = self.cfg["save_interval"]
 
@@ -135,7 +135,10 @@ class OnPolicyRunner:
                 start = stop
                 self.alg.compute_returns(critic_obs)
 
-            mean_value_loss, mean_surrogate_loss = self.alg.update()
+            loss_dict = self.alg.update()
+            mean_value_loss = loss_dict["mean_value_loss"]
+            mean_surrogate_loss = loss_dict["mean_surrogate_loss"]
+
             stop = time.time()
             learn_time = stop - start
             if self.log_dir is not None:
@@ -169,8 +172,10 @@ class OnPolicyRunner:
         mean_std = self.alg.actor_critic.std.mean()
         fps = int(self.num_steps_per_env * self.env.num_envs / (locs["collection_time"] + locs["learn_time"]))
 
-        self.writer.add_scalar("Loss/value_function", locs["mean_value_loss"], locs["it"])
-        self.writer.add_scalar("Loss/surrogate", locs["mean_surrogate_loss"], locs["it"])
+        # self.writer.add_scalar("Loss/value_function", locs["mean_value_loss"], locs["it"])
+        # self.writer.add_scalar("Loss/surrogate", locs["mean_surrogate_loss"], locs["it"])
+        for key, value in locs["loss_dict"].items():
+            self.writer.add_scalar(f"loss/{key}", value, locs["it"])
         self.writer.add_scalar("Loss/learning_rate", self.alg.learning_rate, locs["it"])
         self.writer.add_scalar("Policy/mean_noise_std", mean_std.item(), locs["it"])
         self.writer.add_scalar("Perf/total_fps", fps, locs["it"])
