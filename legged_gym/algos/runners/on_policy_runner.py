@@ -192,7 +192,6 @@ class OnPolicyRunner:
         if len(locs["rewbuffer"]) > 0:
             log_string = (
                 f"""{'#' * width}\n"""
-                f"""{str.center(width, ' ')}\n\n"""
                 f"""{'Computation:':>{pad}} {fps:.0f} steps/s (collection: {locs[
                             'collection_time']:.3f}s, learning {locs['learn_time']:.3f}s)\n"""
                 f"""{'Value function loss:':>{pad}} {locs['mean_value_loss']:.4f}\n"""
@@ -222,12 +221,18 @@ class OnPolicyRunner:
             f"""{'Total timesteps:':>{pad}} {self.tot_timesteps}\n"""
             f"""{'Iteration time:':>{pad}} {iteration_time:.2f}s\n"""
             f"""{'Total time:':>{pad}} {self.tot_time:.2f}s\n"""
-            f"""{'ETA:':>{pad}} {self.tot_time / (locs['it'] + 1) * (
-                               locs['num_learning_iterations'] - locs['it']):.1f}s\n"""
+            f"""{'ETA:':>{pad}} {self.tot_time / (locs['it']-self.current_learning_iteration + 1) * (
+                               locs['num_learning_iterations']+self.current_learning_iteration - locs['it']):.1f}s ("""
+            f"""{self.tot_time / (locs['it']-self.current_learning_iteration + 1) * (
+                               locs['num_learning_iterations']+self.current_learning_iteration - locs['it']) / 3600:.1f}h)\n"""
         )
+        log_string += f"""{str.center(width, ' ')}\n""" f"""{'#' * width}\n"""
+
         print(log_string)
 
     def save(self, path, infos=None):
+        if hasattr(self.alg, "save_extra"):
+            infos = self.alg.save_extra()
         torch.save(
             {
                 "model_state_dict": self.alg.actor_critic.state_dict(),
@@ -244,6 +249,8 @@ class OnPolicyRunner:
         if load_optimizer:
             self.alg.optimizer.load_state_dict(loaded_dict["optimizer_state_dict"])
         self.current_learning_iteration = loaded_dict["iter"]
+        if hasattr(self.alg, "load_extra"):
+            self.alg.load_extra(loaded_dict["infos"])
         return loaded_dict["infos"]
 
     def get_inference_policy(self, device=None):

@@ -31,6 +31,7 @@
 import sys
 from isaacgym import gymapi
 from isaacgym import gymutil
+from legged_gym.utils.Zlog import zzs_basic_graph_logger
 from isaacgym.torch_utils import quat_apply
 import numpy as np
 import torch
@@ -69,17 +70,11 @@ class BaseTask:
         torch._C._jit_set_profiling_executor(False)
 
         # allocate buffers
-        self.obs_buf = torch.zeros(
-            self.num_envs, self.num_obs, device=self.device, dtype=torch.float
-        )
+        self.obs_buf = torch.zeros(self.num_envs, self.num_obs, device=self.device, dtype=torch.float)
         self.rew_buf = torch.zeros(self.num_envs, device=self.device, dtype=torch.float)
         self.reset_buf = torch.ones(self.num_envs, device=self.device, dtype=torch.long)
-        self.episode_length_buf = torch.zeros(
-            self.num_envs, device=self.device, dtype=torch.long
-        )
-        self.time_out_buf = torch.zeros(
-            self.num_envs, device=self.device, dtype=torch.bool
-        )
+        self.episode_length_buf = torch.zeros(self.num_envs, device=self.device, dtype=torch.long)
+        self.time_out_buf = torch.zeros(self.num_envs, device=self.device, dtype=torch.bool)
         if self.num_privileged_obs is not None:
             self.privileged_obs_buf = torch.zeros(
                 self.num_envs,
@@ -100,6 +95,14 @@ class BaseTask:
         # set viewer
         self.set_viewer()
 
+        # action_test
+        self.action_test_countdown_period = 300
+        self.action_test_countdown = -1
+        self.action_test_random_robot_index = 0
+        self.action_test_logger = zzs_basic_graph_logger(
+            sim_params.dt, self.action_test_countdown_period, self.num_actions, self.num_obs, self.dof_names
+        )
+
     def set_viewer(self):
         # todo: read from config
         self.enable_viewer_sync = True
@@ -110,39 +113,18 @@ class BaseTask:
         if self.headless == False:
             # subscribe to keyboard shortcuts
             self.viewer = self.gym.create_viewer(self.sim, gymapi.CameraProperties())
-            self.gym.subscribe_viewer_keyboard_event(
-                self.viewer, gymapi.KEY_ESCAPE, "QUIT"
-            )
-            self.gym.subscribe_viewer_keyboard_event(
-                self.viewer, gymapi.KEY_V, "toggle_viewer_sync"
-            )
-            self.gym.subscribe_viewer_keyboard_event(
-                self.viewer, gymapi.KEY_R, "record_frames"
-            )
-            self.gym.subscribe_viewer_keyboard_event(
-                self.viewer, gymapi.KEY_W, "move_forward"
-            )
-            self.gym.subscribe_viewer_keyboard_event(
-                self.viewer, gymapi.KEY_S, "move_backward"
-            )
-            self.gym.subscribe_viewer_keyboard_event(
-                self.viewer, gymapi.KEY_A, "move_left"
-            )
-            self.gym.subscribe_viewer_keyboard_event(
-                self.viewer, gymapi.KEY_D, "move_right"
-            )
-            self.gym.subscribe_viewer_keyboard_event(
-                self.viewer, gymapi.KEY_Q, "move_down"
-            )
-            self.gym.subscribe_viewer_keyboard_event(
-                self.viewer, gymapi.KEY_E, "move_up"
-            )
-            self.gym.subscribe_viewer_keyboard_event(
-                self.viewer, gymapi.KEY_SPACE, "move_up"
-            )
-            self.gym.subscribe_viewer_keyboard_event(
-                self.viewer, gymapi.KEY_LEFT_SHIFT, "move_down"
-            )
+            self.gym.subscribe_viewer_keyboard_event(self.viewer, gymapi.KEY_ESCAPE, "QUIT")
+            self.gym.subscribe_viewer_keyboard_event(self.viewer, gymapi.KEY_V, "toggle_viewer_sync")
+            self.gym.subscribe_viewer_keyboard_event(self.viewer, gymapi.KEY_R, "record_frames")
+            self.gym.subscribe_viewer_keyboard_event(self.viewer, gymapi.KEY_W, "move_forward")
+            self.gym.subscribe_viewer_keyboard_event(self.viewer, gymapi.KEY_S, "move_backward")
+            self.gym.subscribe_viewer_keyboard_event(self.viewer, gymapi.KEY_A, "move_left")
+            self.gym.subscribe_viewer_keyboard_event(self.viewer, gymapi.KEY_D, "move_right")
+            self.gym.subscribe_viewer_keyboard_event(self.viewer, gymapi.KEY_Q, "move_down")
+            self.gym.subscribe_viewer_keyboard_event(self.viewer, gymapi.KEY_E, "move_up")
+            self.gym.subscribe_viewer_keyboard_event(self.viewer, gymapi.KEY_SPACE, "move_up")
+            self.gym.subscribe_viewer_keyboard_event(self.viewer, gymapi.KEY_LEFT_SHIFT, "move_down")
+            self.gym.subscribe_viewer_keyboard_event(self.viewer, gymapi.KEY_T, "action_test")
 
     def get_observations(self):
         return self.obs_buf
@@ -158,9 +140,7 @@ class BaseTask:
         """Reset all robots"""
         self.reset_idx(torch.arange(self.num_envs, device=self.device))
         obs, privileged_obs, _, _, _ = self.step(
-            torch.zeros(
-                self.num_envs, self.num_actions, device=self.device, requires_grad=False
-            )
+            torch.zeros(self.num_envs, self.num_actions, device=self.device, requires_grad=False)
         )
         return obs, privileged_obs
 
@@ -193,6 +173,10 @@ class BaseTask:
                     self.viewer_move.y = evt.value * 0.2
                 elif evt.action == "move_down":
                     self.viewer_move.y = -evt.value * 0.2
+                elif evt.action == "action_test" and evt.value > 0 and self.action_test_countdown < 0:
+                    self.action_test_countdown = self.action_test_countdown_period
+                    self.action_test_random_robot_index = np.random.randint(self.num_envs)
+                    print(f"begin action test for random robot with id {self.action_test_random_robot_index}")
 
             # fetch results
             if self.device != "cpu":
@@ -205,32 +189,57 @@ class BaseTask:
                 if sync_frame_time:
                     self.gym.sync_frame_time(self.sim)
 
-                if (
-                    (self.viewer_move.x != 0.0)
-                    or (self.viewer_move.y != 0.0)
-                    or (self.viewer_move.z != 0.0)
-                ):
+                if (self.viewer_move.x != 0.0) or (self.viewer_move.y != 0.0) or (self.viewer_move.z != 0.0):
                     viewer_pos = self.gym.get_viewer_camera_transform(self.viewer, None)
-                    viewer_trans_tensor = torch.tensor(
-                        [viewer_pos.p.x, viewer_pos.p.y, viewer_pos.p.z]
-                    )
-                    viewer_quat_tensor = torch.tensor(
-                        [viewer_pos.r.x, viewer_pos.r.y, viewer_pos.r.z, viewer_pos.r.w]
-                    )
+                    viewer_trans_tensor = torch.tensor([viewer_pos.p.x, viewer_pos.p.y, viewer_pos.p.z])
+                    viewer_quat_tensor = torch.tensor([viewer_pos.r.x, viewer_pos.r.y, viewer_pos.r.z, viewer_pos.r.w])
                     z = torch.tensor([0.0, 0.0, 1.0])
                     look_at = quat_apply(viewer_quat_tensor, z)
-                    move_torch = torch.tensor(
-                        [self.viewer_move.x, 0, self.viewer_move.z]
-                    )
+                    move_torch = torch.tensor([self.viewer_move.x, 0, self.viewer_move.z])
                     offset = quat_apply(viewer_quat_tensor, move_torch)
                     offset[2] = self.viewer_move.y + offset[2]
                     new_pos = offset + viewer_trans_tensor
                     new_look = look_at + new_pos
                     new_pos_gym = gymapi.Vec3(new_pos[0], new_pos[1], new_pos[2])
                     new_look_gym = gymapi.Vec3(new_look[0], new_look[1], new_look[2])
-                    self.gym.viewer_camera_look_at(
-                        self.viewer, None, new_pos_gym, new_look_gym
-                    )
+                    self.gym.viewer_camera_look_at(self.viewer, None, new_pos_gym, new_look_gym)
+
+                if self.action_test_countdown >= 0:
+                    self.process_action_test()
 
             else:
                 self.gym.poll_viewer_events(self.viewer)
+
+    def process_action_test(self):
+        if self.action_test_countdown > 0:
+            # print progress every 50 steps
+            if self.action_test_countdown % 50 == 0:
+                print(
+                    f"action test percentage: {(self.action_test_countdown_period - self.action_test_countdown)/self.action_test_countdown_period * 100}"
+                )
+            self.action_test_countdown -= 1
+            robot_index = self.action_test_random_robot_index
+            self.action_test_logger.log_states(
+                {
+                    "dof_pos_target": self.actions[robot_index, :].detach().cpu().numpy()
+                    * self.cfg.control.action_scale,
+                    "dof_pos": self.dof_pos[robot_index, :].detach().cpu().numpy(),
+                    "dof_vel": self.dof_vel[robot_index, :].detach().cpu().numpy(),
+                    "dof_torque": self.torques[robot_index, :].detach().cpu().numpy(),
+                    "command_x": self.commands[robot_index, 0].detach().cpu().numpy(),
+                    "command_y": self.commands[robot_index, 1].detach().cpu().numpy(),
+                    "command_yaw": self.commands[robot_index, 2].detach().cpu().numpy(),
+                    "base_vel_x": self.base_lin_vel[robot_index, 0].detach().cpu().numpy(),
+                    "base_vel_y": self.base_lin_vel[robot_index, 1].detach().cpu().numpy(),
+                    "base_vel_z": self.base_lin_vel[robot_index, 2].detach().cpu().numpy(),
+                    "base_vel_yaw": self.base_ang_vel[robot_index, 2].detach().cpu().numpy(),
+                    "contact_forces_z": self.contact_forces[robot_index, self.feet_indices, 2].cpu().numpy(),
+                }
+            )
+        elif self.action_test_countdown == 0:
+            print("action test finished")
+            self.action_test_logger.plot_states()
+            self.action_test_countdown = -1
+            self.action_test_logger.reset()
+        else:
+            pass  # do nothing if self.action_test_countdown < 0

@@ -61,6 +61,7 @@ class ActorCritic(nn.Module):
 
         self.mlp_input_dim_a = num_actor_obs
         self.mlp_input_dim_c = num_critic_obs
+        self.num_actions = num_actions
 
         # Policy
         actor_layers = []

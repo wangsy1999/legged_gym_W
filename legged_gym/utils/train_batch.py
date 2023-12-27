@@ -1,8 +1,7 @@
 from legged_gym.envs.base.base_config import BaseConfig
-from legged_gym.envs.CustomEnvironments.BITeno.BITeno_config import BITenoCfg, BITenoCfgPPO
 
 
-def check_env_batch_config(env_cfg: BITenoCfg):
+def check_env_batch_config(env_cfg):
     if not hasattr(env_cfg, "TrainBatch"):
         print("No TrainBatch in env_cfg")
         return 0
@@ -32,7 +31,7 @@ def update_class_from_dict_idx(obj, params, idx):
     return
 
 
-def parse_env_batch_config(env_cfg: BITenoCfg, idx: int):
+def parse_env_batch_config(env_cfg, idx: int):
     if not hasattr(env_cfg, "TrainBatch"):
         print("No TrainBatch in env_cfg")
         return env_cfg
@@ -46,7 +45,7 @@ def parse_env_batch_config(env_cfg: BITenoCfg, idx: int):
     return env_cfg
 
 
-def parse_train_batch_config(train_cfg: BITenoCfgPPO, idx: int):
+def parse_train_batch_config(train_cfg, idx: int):
     if not hasattr(train_cfg, "TrainBatch"):
         print("No TrainBatch in train_cfg")
         return train_cfg  # TODO: check if this is correct

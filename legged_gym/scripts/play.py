@@ -36,10 +36,10 @@ from legged_gym.envs import *
 
 
 from legged_gym.utils import get_args, export_policy_as_jit, task_registry, Logger
+from legged_gym.utils.Zlog import zzs_basic_graph_logger
 
 if os.path.exists("./legged_gym/envs/CustomEnvironments"):
     from legged_gym.envs.CustomEnvironments import *
-    from legged_gym.envs.CustomEnvironments.BITeno.BITeno_logger import BITeno_Logger
 
 import numpy as np
 import torch
@@ -77,14 +77,20 @@ def play(args):
         print("Exported policy as jit script to: ", path)
 
     stop_state_log = 300  # number of steps before plotting states
-    if args.task == "BITeno":
-        logger = BITeno_Logger(
-            dt=env.dt, max_episode_length=stop_state_log, action_dim=6, observation_dim=30, dof_names=env.dof_names
+    robot_index = [9, 10]  # which robot is used for logging
+    joint_index = 1  # which joint is used for logging
+
+    if USE_ZZS_LOGGER:
+        logger = zzs_basic_graph_logger(
+            dt=env.dt,
+            max_episode_length=stop_state_log,
+            action_dim=env.num_actions,
+            observation_dim=env.num_obs,
+            dof_names=env.dof_names,
+            num_agents=len(robot_index),
         )
     else:
         logger = Logger(env.dt)
-    robot_index = 0  # which robot is used for logging
-    joint_index = 1  # which joint is used for logging
 
     stop_rew_log = env.max_episode_length + 1  # number of steps before print average episode rewards
     camera_position = np.array(env_cfg.viewer.pos, dtype=np.float64)
@@ -112,24 +118,27 @@ def play(args):
             env.set_camera(camera_position, camera_position + camera_direction)
 
         if i < stop_state_log:
-            if type(logger) is BITeno_Logger:
+            if type(logger) is zzs_basic_graph_logger:
                 logger.log_states(
                     {
                         "dof_pos_target": actions[robot_index, :].detach().cpu().numpy() * env.cfg.control.action_scale,
                         "dof_pos": env.dof_pos[robot_index, :].detach().cpu().numpy(),
                         "dof_vel": env.dof_vel[robot_index, :].detach().cpu().numpy(),
                         "dof_torque": env.torques[robot_index, :].detach().cpu().numpy(),
-                        "command_x": env.commands[robot_index, 0].item(),
-                        "command_y": env.commands[robot_index, 1].item(),
-                        "command_yaw": env.commands[robot_index, 2].item(),
-                        "base_vel_x": env.base_lin_vel[robot_index, 0].item(),
-                        "base_vel_y": env.base_lin_vel[robot_index, 1].item(),
-                        "base_vel_z": env.base_lin_vel[robot_index, 2].item(),
-                        "base_vel_yaw": env.base_ang_vel[robot_index, 2].item(),
+                        "command_x": env.commands[robot_index, 0].detach().cpu().numpy(),
+                        "command_y": env.commands[robot_index, 1].detach().cpu().numpy(),
+                        "command_yaw": env.commands[robot_index, 2].detach().cpu().numpy(),
+                        "base_vel_x": env.base_lin_vel[robot_index, 0].detach().cpu().numpy(),
+                        "base_vel_y": env.base_lin_vel[robot_index, 1].detach().cpu().numpy(),
+                        "base_vel_z": env.base_lin_vel[robot_index, 2].detach().cpu().numpy(),
+                        "base_vel_yaw": env.base_ang_vel[robot_index, 2].detach().cpu().numpy(),
                         "contact_forces_z": env.contact_forces[robot_index, env.feet_indices, 2].cpu().numpy(),
                     }
                 )
             else:
+                if isinstance(robot_index, list):
+                    print("logger do NOT support robot_index as list input, change to robot 0 instead!")
+                    robot_index = 0
                 logger.log_states(
                     {
                         "dof_pos_target": actions[robot_index, joint_index].item() * env.cfg.control.action_scale,
@@ -161,5 +170,6 @@ if __name__ == "__main__":
     EXPORT_POLICY = True
     RECORD_FRAMES = False
     MOVE_CAMERA = False
+    USE_ZZS_LOGGER = True
     args = get_args()
     play(args)
