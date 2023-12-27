@@ -59,34 +59,30 @@ class ActorCritic(nn.Module):
 
         activation = get_activation(activation)
 
-        mlp_input_dim_a = num_actor_obs
-        mlp_input_dim_c = num_critic_obs
+        self.mlp_input_dim_a = num_actor_obs
+        self.mlp_input_dim_c = num_critic_obs
 
         # Policy
         actor_layers = []
-        actor_layers.append(nn.Linear(mlp_input_dim_a, actor_hidden_dims[0]))
+        actor_layers.append(nn.Linear(self.mlp_input_dim_a, actor_hidden_dims[0]))
         actor_layers.append(activation)
         for l in range(len(actor_hidden_dims)):
             if l == len(actor_hidden_dims) - 1:
                 actor_layers.append(nn.Linear(actor_hidden_dims[l], num_actions))
             else:
-                actor_layers.append(
-                    nn.Linear(actor_hidden_dims[l], actor_hidden_dims[l + 1])
-                )
+                actor_layers.append(nn.Linear(actor_hidden_dims[l], actor_hidden_dims[l + 1]))
                 actor_layers.append(activation)
         self.actor = nn.Sequential(*actor_layers)
 
         # Value function
         critic_layers = []
-        critic_layers.append(nn.Linear(mlp_input_dim_c, critic_hidden_dims[0]))
+        critic_layers.append(nn.Linear(self.mlp_input_dim_c, critic_hidden_dims[0]))
         critic_layers.append(activation)
         for l in range(len(critic_hidden_dims)):
             if l == len(critic_hidden_dims) - 1:
                 critic_layers.append(nn.Linear(critic_hidden_dims[l], 1))
             else:
-                critic_layers.append(
-                    nn.Linear(critic_hidden_dims[l], critic_hidden_dims[l + 1])
-                )
+                critic_layers.append(nn.Linear(critic_hidden_dims[l], critic_hidden_dims[l + 1]))
                 critic_layers.append(activation)
         self.critic = nn.Sequential(*critic_layers)
 
@@ -110,9 +106,7 @@ class ActorCritic(nn.Module):
     def init_weights(sequential, scales):
         [
             torch.nn.init.orthogonal_(module.weight, gain=scales)
-            for idx, module in enumerate(
-                mod for mod in sequential if isinstance(mod, nn.Linear)
-            )
+            for idx, module in enumerate(mod for mod in sequential if isinstance(mod, nn.Linear))
         ]
 
     def reset(self, dones=None):

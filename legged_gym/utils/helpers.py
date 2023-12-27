@@ -243,11 +243,15 @@ def get_args():
             "type": int,
             "help": "Maximum number of training iterations. Overrides config file if provided.",
         },
+        {
+            "name": "--train_batch",
+            "type": int,
+            "default": 0,
+            "help": "Train on a batch of environments",
+        },
     ]
     # parse arguments
-    args = gymutil.parse_arguments(
-        description="RL Policy", custom_parameters=custom_parameters
-    )
+    args = gymutil.parse_arguments(description="RL Policy", custom_parameters=custom_parameters)
 
     # name allignment
     args.sim_device_id = args.compute_device_id
@@ -262,12 +266,18 @@ def export_policy_as_jit(actor_critic, path):
         # assumes LSTM: TODO add GRU
         exporter = PolicyExporterLSTM(actor_critic)
         exporter.export(path)
+        # TODO: add trace support for LSTM
     else:
         os.makedirs(path, exist_ok=True)
-        path = os.path.join(path, "policy_1.pt")
+        path1 = os.path.join(path, "policy_1.pt")
         model = copy.deepcopy(actor_critic.actor).to("cpu")
         traced_script_module = torch.jit.script(model)
-        traced_script_module.save(path)
+        traced_script_module.save(path1)
+
+        example = torch.ones((1, actor_critic.mlp_input_dim_a)).to("cpu")
+        path2 = os.path.join(path, "policy_1_traced.pt")
+        traced_script_module2 = torch.jit.trace(model, example)
+        traced_script_module2.save(path2)
 
 
 class PolicyExporterLSTM(torch.nn.Module):

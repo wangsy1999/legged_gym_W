@@ -40,15 +40,31 @@ if os.path.exists("./legged_gym/envs/CustomEnvironments"):
 
 from legged_gym.utils import get_args, task_registry
 from legged_gym.utils import ExperimentLogger
+from legged_gym.utils import train_batch
 import torch
 
 
 def train(args):
     logdir = ExperimentLogger.generate_logdir(args.task)
-    ExperimentLogger.commit_experiment(logdir)  # force to commit expriment message
-    env, env_cfg = task_registry.make_env(name=args.task, args=args)
+    if args.train_batch <= 1:  # require experiment commit message for non batched run or first time of batched run
+        ExperimentLogger.commit_experiment(logdir)  # force to commit expriment message
+
+    env_cfg, train_cfg = task_registry.get_cfgs(name=args.task)
+    if args.train_batch != 0:
+        args.headless = True  # force headless mode for batched runs
+        # prepare environment
+        train_batch_len = train_batch.check_env_batch_config(env_cfg)
+
+        # check if batch size is too large
+        if args.train_batch > train_batch_len:
+            print(f"Batch size {args.train_batch} is too large, maximum batch size is {train_batch_len}")
+            os._exit(0)
+
+        env_cfg = train_batch.parse_env_batch_config(env_cfg, args.train_batch - 1)
+
+    env, env_cfg = task_registry.make_env(name=args.task, args=args, env_cfg=env_cfg)
     ppo_runner, train_cfg = task_registry.make_alg_runner(
-        env=env, name=args.task, args=args, log_root=logdir
+        env=env, name=args.task, args=args, train_cfg=train_cfg, log_root=logdir
     )
     ExperimentLogger.save_hyper_params(logdir, env_cfg, train_cfg)
     ppo_runner.learn(
