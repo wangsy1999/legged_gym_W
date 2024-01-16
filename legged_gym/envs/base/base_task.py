@@ -125,6 +125,7 @@ class BaseTask:
             self.gym.subscribe_viewer_keyboard_event(self.viewer, gymapi.KEY_SPACE, "move_up")
             self.gym.subscribe_viewer_keyboard_event(self.viewer, gymapi.KEY_LEFT_SHIFT, "move_down")
             self.gym.subscribe_viewer_keyboard_event(self.viewer, gymapi.KEY_T, "action_test")
+            self.gym.subscribe_viewer_keyboard_event(self.viewer, gymapi.KEY_C, "camera_position")
 
     def get_observations(self):
         return self.obs_buf
@@ -177,6 +178,14 @@ class BaseTask:
                     self.action_test_countdown = self.action_test_countdown_period
                     self.action_test_random_robot_index = np.random.randint(self.num_envs)
                     print(f"begin action test for random robot with id {self.action_test_random_robot_index}")
+                elif evt.action == "camera_position" and evt.value > 0:
+                    viewer_pos = self.gym.get_viewer_camera_transform(self.viewer, None)
+                    viewer_trans_tensor = torch.tensor([viewer_pos.p.x, viewer_pos.p.y, viewer_pos.p.z])
+                    viewer_quat_tensor = torch.tensor([viewer_pos.r.x, viewer_pos.r.y, viewer_pos.r.z, viewer_pos.r.w])
+                    z = torch.tensor([0.0, 0.0, 1.0])
+                    look_at = quat_apply(viewer_quat_tensor, z)
+                    print("viewer position:", viewer_trans_tensor)
+                    print("viewer look at:", look_at)
 
             # fetch results
             if self.device != "cpu":
@@ -215,7 +224,7 @@ class BaseTask:
             # print progress every 50 steps
             if self.action_test_countdown % 50 == 0:
                 print(
-                    f"action test percentage: {(self.action_test_countdown_period - self.action_test_countdown)/self.action_test_countdown_period * 100}"
+                    f"action test percentage: {((self.action_test_countdown_period - self.action_test_countdown)/self.action_test_countdown_period * 100):.2f} %"
                 )
             self.action_test_countdown -= 1
             robot_index = self.action_test_random_robot_index

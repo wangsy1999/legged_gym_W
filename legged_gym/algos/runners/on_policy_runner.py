@@ -79,10 +79,16 @@ class OnPolicyRunner:
 
         _, _ = self.env.reset()
 
-    def learn(self, num_learning_iterations, init_at_random_ep_len=False):
+    def learn(self, num_learning_iterations, init_at_random_ep_len=False, experiment_log=None):
         # initialize writer
         if self.log_dir is not None and self.writer is None:
             self.writer = SummaryWriter(log_dir=self.log_dir, flush_secs=10)
+
+        if experiment_log is not None:
+            # write experiment log to tensorboard recursively
+            for key, value in experiment_log.items():
+                self.writer.add_text(key, str(value), 0)
+
         if init_at_random_ep_len:
             self.env.episode_length_buf = torch.randint_like(
                 self.env.episode_length_buf, high=int(self.env.max_episode_length)

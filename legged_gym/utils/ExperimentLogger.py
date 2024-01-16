@@ -25,17 +25,25 @@ def generate_logdir(experiment_name: str):
     return {"log_root": log_root, "log_dir": log_dir}
 
 
-def commit_experiment(logdir: dict):
+def commit_experiment(logdir: dict, tsk_arg=None):
     mkdir(logdir["log_dir"])
     filename = os.path.join(logdir["log_dir"], "commit.txt")
     commit_msg = input("Enter commit message: ")
+    pri_commit_msg = ""
+    if tsk_arg is not None:
+        pri_commit_msg = f"Task: {tsk_arg.task},  \n"
+        if tsk_arg.resume:
+            pri_commit_msg += f"Resume from: {tsk_arg.load_run},  \n"
+
     if commit_msg == "":
         print("No commit message provided! Exiting.")
         os._exit(0)
+
+    out_msg = pri_commit_msg + commit_msg
     with open(filename, "w") as f:
-        f.write(commit_msg)
+        f.write(out_msg)
     print(f"Commit message saved to {filename}")
-    return commit_msg
+    return {"commit message": out_msg}
 
 
 def save_hyper_params(dir: dict, env_cfg: BaseConfig, train_cfg: BaseConfig):

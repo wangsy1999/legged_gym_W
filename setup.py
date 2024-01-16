@@ -11,5 +11,12 @@ setup(
     packages=find_packages(),
     author_email="rudinn@ethz.ch",
     description="ZZS version Isaac Gym environments for Legged Robots",
-    install_requires=["isaacgym", "torch>=1.4.0", "torchvision>=0.5.0", "numpy>=1.16.4" "matplotlib"],
+    install_requires=[
+        "isaacgym",
+        "torch>=1.4.0",
+        "torchvision>=0.5.0",
+        "numpy>=1.16.4",
+        "matplotlib",
+        "tensorboard>=1.15",
+    ],
 )
