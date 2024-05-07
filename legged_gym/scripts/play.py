@@ -121,6 +121,8 @@ def play(args):
 
         if i < stop_state_log:
             if type(logger) is zzs_basic_graph_logger:
+                measured_height = env.root_states[:, 2].unsqueeze(1) - env.measured_heights
+                measured_height = measured_height[robot_index, 0]
                 logger.log_states(
                     {
                         "dof_pos_target": actions[robot_index, :].detach().cpu().numpy() * env.cfg.control.action_scale,
@@ -135,6 +137,7 @@ def play(args):
                         "base_vel_z": env.base_lin_vel[robot_index, 2].detach().cpu().numpy(),
                         "base_vel_yaw": env.base_ang_vel[robot_index, 2].detach().cpu().numpy(),
                         "contact_forces_z": env.contact_forces[robot_index, env.feet_indices, 2].cpu().numpy(),
+                        "base_height": measured_height.detach().cpu().numpy(),
                     }
                 )
             else:

@@ -228,6 +228,9 @@ class BaseTask:
                 )
             self.action_test_countdown -= 1
             robot_index = self.action_test_random_robot_index
+            measured_height = self.root_states[:, 2].unsqueeze(1) - self.measured_heights
+            measured_height = measured_height[robot_index, 0]
+
             self.action_test_logger.log_states(
                 {
                     "dof_pos_target": self.actions[robot_index, :].detach().cpu().numpy()
@@ -243,6 +246,7 @@ class BaseTask:
                     "base_vel_z": self.base_lin_vel[robot_index, 2].detach().cpu().numpy(),
                     "base_vel_yaw": self.base_ang_vel[robot_index, 2].detach().cpu().numpy(),
                     "contact_forces_z": self.contact_forces[robot_index, self.feet_indices, 2].cpu().numpy(),
+                    "base_height": measured_height.detach().cpu().numpy(),
                 }
             )
         elif self.action_test_countdown == 0:

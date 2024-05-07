@@ -32,6 +32,7 @@ class zzs_basic_graph_logger:
             "base_vel_z": np.zeros((self.max_episode_length, self.num_agents)),
             "base_vel_yaw": np.zeros((self.max_episode_length, self.num_agents)),
             "contact_forces_z": np.zeros((self.max_episode_length, self.num_agents, 2)),
+            "base_height": np.zeros((self.max_episode_length, self.num_agents)),
         }
         self.buffer_idx = 0
 
@@ -116,7 +117,9 @@ class zzs_basic_graph_logger:
         a.set(xlabel="time [s]", ylabel="Forces z [N]", title="Vertical Contact forces")
         a.legend()
         a = axs[1, 2]
-        a.plot(time, time, label="N/A")
+        a.plot(time, self.buffer["base_height"][:, robot_index], label="measured")
+        a.set(xlabel="time [s]", ylabel="height [m]", title="Base height")
+        a.legend()
 
     def _plot(self):
         for robot_index in range(self.num_agents):

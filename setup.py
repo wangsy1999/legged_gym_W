@@ -18,5 +18,6 @@ setup(
         "numpy>=1.16.4",
         "matplotlib",
         "tensorboard>=1.15",
+        "onnx",
     ],
 )
