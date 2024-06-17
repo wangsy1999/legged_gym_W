@@ -21,4 +21,5 @@ setup(
         "onnx",
         "isaacgym-stubs",
     ],
+    extras_require={"cuda": ["torch==2.3.1+121"]},
 )

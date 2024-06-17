@@ -1,0 +1,64 @@
+{
+    "[python]": {
+        "editor.formatOnType": true,
+        "editor.defaultFormatter": "ms-python.black-formatter"
+    },
+    "black-formatter.args": [
+        "--line-length",
+        "120"
+    ],
+    "python.languageServer": "Pylance",
+    "todo-tree.general.tags": [
+        "BUG:",
+        "HACK:",
+        "FIXME:",
+        "TODO:",
+        "XXX:",
+        "[ ]:",
+        "[x]:",
+        "NOTE:",
+        "QUESTION:"
+    ],
+    "todo-tree.highlights.highlightDelay": 100,
+    "todo-tree.highlights.customHighlight": {
+        "BUG:": {
+            "icon": "bug",
+            "background": "#F8532C"
+        },
+        "HACK:": {
+            "icon": "tools",
+            "background": "#7216f9"
+        },
+        "FIXME:": {
+            "icon": "flame",
+            "background": "#fab7c9"
+        },
+        "TODO:": {
+            "icon": "checklist",
+            "background": "#FFAB00"
+        },
+        "XXX:": {
+            "icon": "x"
+        },
+        "[ ]:": {
+            "icon": "issue-draft"
+        },
+        "[x]:": {
+            "icon": "issue-closed"
+        },
+        "NOTE:": {
+            "icon": "note",
+            "background": "#4672c4"
+        },
+        "QUESTION:": {
+            "icon": "question",
+            "background": "#b2e7fd"
+        }
+    },
+    "todo-tree.highlights.defaultHighlight": {
+        "background": "#FFAB00",
+        "iconColour": "green",
+        "foreground": "#FFFFFF",
+        "borderRadius": "1px"
+    },
+}

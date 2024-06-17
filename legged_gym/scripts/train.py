@@ -48,6 +48,7 @@ import torch
 def train(args):
     logdir = ExperimentLogger.generate_logdir(args.task)
     exp_msg = {}
+    # NOTE: the train batch function is not implemented yet!
     if args.train_batch <= 1:  # require experiment commit message for non batched run or first time of batched run
         exp_msg = ExperimentLogger.commit_experiment(logdir, args)  # force to commit expriment message
 

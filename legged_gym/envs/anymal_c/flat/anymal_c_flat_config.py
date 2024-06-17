@@ -76,6 +76,6 @@ class AnymalCFlatCfgPPO(AnymalCRoughCfgPPO):
 
     class runner(AnymalCRoughCfgPPO.runner):
         run_name = ""
-        experiment_name = "flat_anymal_c"
+        experiment_name = "anymal_c_flat"
         load_run = -1
         max_iterations = 300

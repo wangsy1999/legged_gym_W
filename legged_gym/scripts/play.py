@@ -175,6 +175,6 @@ if __name__ == "__main__":
     EXPORT_POLICY = True
     RECORD_FRAMES = False
     MOVE_CAMERA = False
-    USE_ZZS_LOGGER = True
+    USE_ZZS_LOGGER = False
     args = get_args()
     play(args)

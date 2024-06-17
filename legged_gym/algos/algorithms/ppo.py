@@ -214,10 +214,6 @@ class PPO:
             mean_value_loss += value_loss.item()
             mean_surrogate_loss += surrogate_loss.item()
 
-        # not very useful
-        # self.actor_critic.enforce_minimum_std(
-        #    (torch.ones(6) * 0.2).to(self.device)
-        # )  # TODO: add support for different action spaces
 
         num_updates = self.num_learning_epochs * self.num_mini_batches
         mean_value_loss /= num_updates

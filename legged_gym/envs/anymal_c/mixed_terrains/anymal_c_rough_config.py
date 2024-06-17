@@ -91,5 +91,5 @@ class AnymalCRoughCfg(LeggedRobotCfg):
 class AnymalCRoughCfgPPO(LeggedRobotCfgPPO):
     class runner(LeggedRobotCfgPPO.runner):
         run_name = ""
-        experiment_name = "rough_anymal_c"
+        experiment_name = "anymal_c_rough"
         load_run = -1
