@@ -19,5 +19,6 @@ setup(
         "matplotlib",
         "tensorboard>=1.15",
         "onnx",
+        "isaacgym-stubs",
     ],
 )
