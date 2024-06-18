@@ -244,7 +244,7 @@ def get_args():
             "help": "Maximum number of training iterations. Overrides config file if provided.",
         },
         {
-            "name": "--train_batch",
+            "name": "--train_batch",  # NOTE: not implemented yet!
             "type": int,
             "default": 0,
             "help": "Train on a batch of environments",

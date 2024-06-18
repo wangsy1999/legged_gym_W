@@ -13,7 +13,7 @@ setup(
     description="ZZS version Isaac Gym environments for Legged Robots",
     install_requires=[
         "isaacgym",
-        "torch>=1.4.0",
+        "torch>=2.0.0",
         "torchvision>=0.5.0",
         "numpy>=1.16.4",
         "matplotlib",
@@ -21,5 +21,5 @@ setup(
         "onnx",
         "isaacgym-stubs",
     ],
-    extras_require={"cuda": ["torch==2.3.1+121"]},
+    extras_require={"cuda": ["torch"]},
 )
