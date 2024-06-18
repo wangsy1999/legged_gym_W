@@ -26,7 +26,7 @@
             "console": "integratedTerminal",
             "justMyCode": false,
             "args": [
-                "--task=anymal_c_flat", //set task name
+                "--task=cartpole2", //set task name
                 //"--load_run=Apr29_16-34-52", //set policy to load
                 //"--resume" //set if resume training
             ],

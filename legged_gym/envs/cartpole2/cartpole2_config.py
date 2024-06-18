@@ -12,7 +12,6 @@ class Cartpole2Config(BaseConfig):
 
     class assets:
         fix_base_link = True  # true for fixed base link, false for free floating base link
-        file = "cartpole2.urdf"
         clip_observations = 5.0  # clip observations
         clip_actions = 1.0  # clip actions
 
