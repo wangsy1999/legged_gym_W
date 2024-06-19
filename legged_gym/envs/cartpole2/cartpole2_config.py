@@ -3,10 +3,10 @@ from legged_gym.envs.base.base_config import BaseConfig
 
 class Cartpole2Config(BaseConfig):
     class env:
-        num_envs = 512  # number of environments (agents) to run in parallel
+        num_envs = 4096  # number of environments (agents) to run in parallel
         num_observations = 6  # number of observations per agent (state)
         num_privileged_obs = None  # if not None a priviledge_obs_buf will be returned by step() (critic obs for assymetric training). None is returned otherwise
-        num_actions = 2  # number of actions per agent (control output)
+        num_actions = 1  # number of actions per agent (control output)
         env_spacing = 3.0  # not used with heightfields/trimeshes
         episode_length_s = 20  # episode length in seconds
 
@@ -27,8 +27,13 @@ class Cartpole2Config(BaseConfig):
         pos = [10, 0, 6]  # [m] position of the camera
         lookat = [11.0, 5, 3.0]  # [m] point the camera is looking at
 
+    class control:
+        action_scale = 400.0  # action scale
+        decimation = 1  # control decimation
+        resetDist = 3.0  # reset distance
+
     class sim:
-        dt = 0.005
+        dt = 0.0166
         substeps = 1
         gravity = [0.0, 0.0, -9.81]  # [m/s^2]
         up_axis = 1  # 0 is y, 1 is z
@@ -48,7 +53,7 @@ class Cartpole2Config(BaseConfig):
 
 
 class Cartpole2ConfigPPO(BaseConfig):
-    seed = 3407
+    seed = 123
     runner_class_name = "OnPolicyRunner"
 
     class policy:
@@ -66,10 +71,10 @@ class Cartpole2ConfigPPO(BaseConfig):
         value_loss_coef = 1.0
         use_clipped_value_loss = True
         clip_param = 0.2
-        entropy_coef = 0.01
+        entropy_coef = 0.0
         num_learning_epochs = 5
         num_mini_batches = 4  # mini batch size = num_envs*nsteps / nminibatches
-        learning_rate = 1.0e-3  # 5.e-4
+        learning_rate = 1.0e-4  # 5.e-4
         schedule = "adaptive"  # could be adaptive, fixed
         gamma = 0.99
         lam = 0.95
@@ -80,7 +85,7 @@ class Cartpole2ConfigPPO(BaseConfig):
         policy_class_name = "ActorCritic"
         algorithm_class_name = "PPO"
         num_steps_per_env = 24  # per iteration
-        max_iterations = 1500  # number of policy updates
+        max_iterations = 500  # number of policy updates
 
         # logging
         save_interval = 50  # check for potential saves every this many iterations
