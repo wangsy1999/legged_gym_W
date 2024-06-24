@@ -27,6 +27,7 @@
             "justMyCode": false,
             "args": [
                 "--task=cartpole2", //set task name
+                //"--headless"
                 //"--load_run=Apr29_16-34-52", //set policy to load
                 //"--resume" //set if resume training
             ],

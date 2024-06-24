@@ -3,43 +3,87 @@ from legged_gym.envs.base.base_config import BaseConfig
 
 class Cartpole2Config(BaseConfig):
     class env:
-        num_envs = 4096  # number of environments (agents) to run in parallel
-        num_observations = 6  # number of observations per agent (state)
+        num_envs = 512
+        num_observations = 6
         num_privileged_obs = None  # if not None a priviledge_obs_buf will be returned by step() (critic obs for assymetric training). None is returned otherwise
-        num_actions = 1  # number of actions per agent (control output)
+        num_actions = 1
         env_spacing = 3.0  # not used with heightfields/trimeshes
+        send_timeouts = True  # send time out information to the algorithm
         episode_length_s = 20  # episode length in seconds
 
-    class assets:
-        fix_base_link = True  # true for fixed base link, false for free floating base link
-        clip_observations = 5.0  # clip observations
-        clip_actions = 1.0  # clip actions
+    class init_state:
+        pos = [0.0, 0.0, 0.0]  # x,y,z [m]
+        default_joint_angles = {
+            "slider_to_cart": 0.0,
+            "cart_to_pole": 0.0,
+            "pole_to_pole2": 0.0,
+        }  # target angles when action = 0.0
+
+    class control:
+        control_type = "T"  # P: position, V: velocity, T: torques
+        # action scale: target angle = actionScale * action + defaultAngle
+        action_scale = 300.0
+        # decimation: Number of control action updates @ sim DT per policy DT
+        decimation = 1
+
+    class terrain:
+        static_friction = 1.0
+        dynamic_friction = 1.0
+        restitution = 0.0
+
+    class asset:
+        file = "{LEGGED_GYM_ROOT_DIR}/resources/robots/cartpole/cartpole2.urdf"
+        name = "cartpole"  # actor name
+        disable_gravity = False
+        collapse_fixed_joints = True  # merge bodies connected by fixed joints. Specific fixed joints can be kept by adding " <... dont_collapse="true">
+        fix_base_link = True  # fixe the base of the robot
+        default_dof_drive_mode = 3  # see GymDofDriveModeFlags (0 is none, 1 is pos tgt, 2 is vel tgt, 3 effort)
+        self_collisions = 1  # 1 to disable, 0 to enable...bitwise filter
+        replace_cylinder_with_capsule = (
+            False  # replace collision cylinders with capsules, leads to faster/more stable simulation
+        )
+        flip_visual_attachments = True  # Some .obj meshes must be flipped from y-up to z-up
+
+        density = 0.001
+        angular_damping = 0.0
+        linear_damping = 0.0
+        max_angular_velocity = 1000.0
+        max_linear_velocity = 1000.0
+        armature = 0.0
+        thickness = 0.01
 
     class rewards:
         class scales:
-            termination = -2.0  # reward scale for termination
-            cart_velocity = -0.01  # reward scale for cart velocity
-            pole1_velocity = -0.005  # reward scale for pole1 velocity
-            pole2_velocity = -0.005  # reward scale for pole2 velocity
+            termination = -2.0
+            joint_angle = -1.0
+            joint_velocity = -0.005
 
+        only_positive_rewards = (
+            False  # if true negative total rewards are clipped at zero (avoids early termination problems)
+        )
+
+    class normalization:
+        class obs_scales:
+            dof_pos = 1.0
+            dof_vel = 1.0
+
+        clip_observations = 5.0
+        clip_actions = 3000.0
+
+    # viewer camera:
     class viewer:
-        ref_env = 0  # reference environment for the viewer
-        pos = [10, 0, 6]  # [m] position of the camera
-        lookat = [11.0, 5, 3.0]  # [m] point the camera is looking at
-
-    class control:
-        action_scale = 400.0  # action scale
-        decimation = 1  # control decimation
-        resetDist = 3.0  # reset distance
+        ref_env = 0
+        pos = [10, 0, 6]  # [m]
+        lookat = [11.0, 5, 3.0]  # [m]
 
     class sim:
-        dt = 0.0166
+        dt = 0.01
         substeps = 1
         gravity = [0.0, 0.0, -9.81]  # [m/s^2]
         up_axis = 1  # 0 is y, 1 is z
 
         class physx:
-            num_threads = 10
+            num_threads = 2
             solver_type = 1  # 0: pgs, 1: tgs
             num_position_iterations = 4
             num_velocity_iterations = 0
@@ -53,13 +97,13 @@ class Cartpole2Config(BaseConfig):
 
 
 class Cartpole2ConfigPPO(BaseConfig):
-    seed = 123
+    seed = 1
     runner_class_name = "OnPolicyRunner"
 
     class policy:
-        init_noise_std = 1.0  # initial noise std
-        actor_hidden_dims = [32, 32]  # hidden dimensions of the actor network
-        critic_hidden_dims = [32, 32]  # hidden dimensions of the critic network
+        init_noise_std = 1.0
+        actor_hidden_dims = [512, 256, 128]
+        critic_hidden_dims = [512, 256, 128]
         activation = "elu"  # can be elu, relu, selu, crelu, lrelu, tanh, sigmoid
         # only for 'ActorCriticRecurrent':
         # rnn_type = 'lstm'
@@ -71,10 +115,10 @@ class Cartpole2ConfigPPO(BaseConfig):
         value_loss_coef = 1.0
         use_clipped_value_loss = True
         clip_param = 0.2
-        entropy_coef = 0.0
+        entropy_coef = 0.01
         num_learning_epochs = 5
         num_mini_batches = 4  # mini batch size = num_envs*nsteps / nminibatches
-        learning_rate = 1.0e-4  # 5.e-4
+        learning_rate = 1.0e-3  # 5.e-4
         schedule = "adaptive"  # could be adaptive, fixed
         gamma = 0.99
         lam = 0.95
@@ -85,7 +129,7 @@ class Cartpole2ConfigPPO(BaseConfig):
         policy_class_name = "ActorCritic"
         algorithm_class_name = "PPO"
         num_steps_per_env = 24  # per iteration
-        max_iterations = 500  # number of policy updates
+        max_iterations = 1500  # number of policy updates
 
         # logging
         save_interval = 50  # check for potential saves every this many iterations
