@@ -119,6 +119,27 @@ def parse_sim_params(args, cfg):
     return sim_params
 
 
+def print_welcome_message():
+    class Colors:
+        HEADER = "\033[95m"
+        BLUE = "\033[94m"
+        GREEN = "\033[92m"
+        YELLOW = "\033[93m"
+        RED = "\033[91m"
+        ENDC = "\033[0m"  # 用于重置颜色
+
+    print("")
+    print(f"{Colors.RED}welcome to ZZS version{Colors.ENDC}")
+    print(f"{Colors.GREEN}======================================================================{Colors.ENDC}")
+    print(f"{Colors.GREEN}|L     eeee    gggg     gggg   eeee  dddd       GGGG    y   y   m   m|{Colors.ENDC}")
+    print(f"{Colors.GREEN}|L     e      g    g   g    g  e     d   d     G    G   y   y   mm mm|{Colors.ENDC}")
+    print(f"{Colors.GREEN}|L     eeee   g        g       eeee  d   d     G         yyy    m m m|{Colors.ENDC}")
+    print(f"{Colors.GREEN}|L     e      g  ggg   g  ggg  e     d   d     G  GGG     y     m   m|{Colors.ENDC}")
+    print(f"{Colors.GREEN}|LLLL  eeee    ggggg    ggggg  eeee  dddd       GGGGG     y     m   m|{Colors.ENDC}")
+    print(f"{Colors.GREEN}======================================================================{Colors.ENDC}")
+    print("\n")
+
+
 def get_load_path(root, load_run=-1, checkpoint=-1):
     try:
         runs = os.listdir(root)

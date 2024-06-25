@@ -35,7 +35,7 @@ import isaacgym
 from legged_gym.envs import *
 
 
-from legged_gym.utils import get_args, export_policy_as_jit, task_registry, Logger
+from legged_gym.utils import get_args, export_policy_as_jit, task_registry, Logger, print_welcome_message
 from legged_gym.utils.Zlog import zzs_basic_graph_logger
 
 if os.path.exists("./legged_gym/envs/CustomEnvironments"):
@@ -78,7 +78,7 @@ def play(args):
 
     stop_state_log = 300  # number of steps before plotting states
     robot_index = [9, 10]  # which robot is used for logging
-    joint_index = 1  # which joint is used for logging
+    joint_index = 0  # which joint is used for logging
 
     if USE_ZZS_LOGGER:
         logger = zzs_basic_graph_logger(
@@ -177,4 +177,5 @@ if __name__ == "__main__":
     MOVE_CAMERA = False
     USE_ZZS_LOGGER = False
     args = get_args()
+    print_welcome_message()
     play(args)

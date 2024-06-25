@@ -41,6 +41,7 @@ if os.path.exists("./legged_gym/envs/CustomEnvironments"):
 from legged_gym.utils import get_args, task_registry
 from legged_gym.utils import ExperimentLogger
 from legged_gym.utils import train_batch
+from legged_gym.utils import print_welcome_message
 from legged_gym.utils.helpers import class_to_dict
 import torch
 
@@ -79,4 +80,5 @@ def train(args):
 
 if __name__ == "__main__":
     args = get_args()
+    print_welcome_message()
     train(args)
