@@ -69,7 +69,7 @@ def play(args):
         path = os.path.join(
             LEGGED_GYM_ROOT_DIR,
             "logs",
-            train_cfg.runner.experiment_name,
+            args.task,
             "exported",
             "policies",
         )
@@ -77,7 +77,7 @@ def play(args):
         print("Exported policy as jit script to: ", path)
 
     stop_state_log = 300  # number of steps before plotting states
-    robot_index = [9, 10]  # which robot is used for logging
+    robot_index = [0]  # which robot is used for logging
     joint_index = 0  # which joint is used for logging
 
     if USE_ZZS_LOGGER:
@@ -108,7 +108,7 @@ def play(args):
                 filename = os.path.join(
                     LEGGED_GYM_ROOT_DIR,
                     "logs",
-                    train_cfg.runner.experiment_name,
+                    args.task,
                     "exported",
                     "frames",
                     f"{img_idx}.png",
@@ -175,7 +175,7 @@ if __name__ == "__main__":
     EXPORT_POLICY = True
     RECORD_FRAMES = False
     MOVE_CAMERA = False
-    USE_ZZS_LOGGER = False
+    USE_ZZS_LOGGER = True
     args = get_args()
     print_welcome_message()
     play(args)

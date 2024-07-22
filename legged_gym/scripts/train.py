@@ -42,6 +42,7 @@ from legged_gym.utils import get_args, task_registry
 from legged_gym.utils import ExperimentLogger
 from legged_gym.utils import train_batch
 from legged_gym.utils import print_welcome_message
+from legged_gym.utils.helpers import launch_tensorboard
 from legged_gym.utils.helpers import class_to_dict
 import torch
 
@@ -65,6 +66,10 @@ def train(args):
             os._exit(0)
 
         env_cfg = train_batch.parse_env_batch_config(env_cfg, args.train_batch - 1)
+
+    if args.launch_tensorboard:
+        log_root = os.path.join(LEGGED_GYM_ROOT_DIR, "logs", args.task)
+        launch_tensorboard(log_root)
 
     env, env_cfg = task_registry.make_env(name=args.task, args=args, env_cfg=env_cfg)
     ppo_runner, train_cfg = task_registry.make_alg_runner(

@@ -119,6 +119,16 @@ def parse_sim_params(args, cfg):
     return sim_params
 
 
+def launch_tensorboard(directory_path):
+    from tensorboard import program
+
+    # learning visualizer
+    tb = program.TensorBoard()
+    tb.configure(argv=[None, "--logdir", directory_path, "--bind_all", "--port", "5000"])
+    url = tb.launch()
+    print("[info] Tensorboard session created: " + url)
+
+
 def print_welcome_message():
     class Colors:
         HEADER = "\033[95m"
@@ -269,6 +279,12 @@ def get_args():
             "type": int,
             "default": 0,
             "help": "Train on a batch of environments",
+        },
+        {
+            "name": "--launch_tensorboard",
+            "action": "store_true",
+            "default": False,
+            "help": "launch tensorboard backend",
         },
     ]
     # parse arguments
