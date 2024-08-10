@@ -61,4 +61,5 @@
         "foreground": "#FFFFFF",
         "borderRadius": "1px"
     },
+    "ros.distro": "noetic",
 }
