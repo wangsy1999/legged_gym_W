@@ -206,7 +206,7 @@ class BaseTask:
                     look_at = quat_apply(viewer_quat_tensor, z)
                     move_torch = torch.tensor([self.viewer_move.x, 0, self.viewer_move.z])
                     offset = quat_apply(viewer_quat_tensor, move_torch)
-                    offset[2] = self.viewer_move.y + offset[2]
+                    offset[2] = self.viewer_move.y
                     new_pos = offset + viewer_trans_tensor
                     new_look = look_at + new_pos
                     new_pos_gym = gymapi.Vec3(new_pos[0], new_pos[1], new_pos[2])
