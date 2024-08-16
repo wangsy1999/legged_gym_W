@@ -12,8 +12,8 @@
             "console": "integratedTerminal",
             "justMyCode": false,
             "args": [
-                "--task=cartpole2", //set task name
-                //"--load_run=Jun25_12-43-17", //set policy to load
+                "--task=BITeno_roboterax", //set task name
+                //"--load_run=Jul17_16-55-14", //set policy to load
                 //NOTE: please set the checkpint according to the policy you want to load
                 "--num_envs=50", //set number of environments
             ]
@@ -26,10 +26,11 @@
             "console": "integratedTerminal",
             "justMyCode": false,
             "args": [
-                "--task=cartpole2", //set task name
+                "--task=BITeno_roboterax", //set task name
+                "--launch_tensorboard",
                 //"--headless" //uncomment to run without rendering
-                //"--load_run=Apr29_16-34-52", //set pre-trained policy to load
-                //"--resume" //set if resume training
+                //"--load_run=Aug16_15-37-22", //set pre-trained policy to load
+                //"--resume", //set if resume training
                 //NOTE: for more options, please refer to the get_args() funtion in legged_gym/utils/helper.py
             ],
         }
