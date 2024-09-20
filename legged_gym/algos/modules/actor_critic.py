@@ -62,6 +62,7 @@ class ActorCritic(nn.Module):
         self.mlp_input_dim_a = num_actor_obs
         self.mlp_input_dim_c = num_critic_obs
         self.num_actions = num_actions
+        self.init_noise_std = init_noise_std
 
         # Policy
         actor_layers = []
@@ -151,6 +152,13 @@ class ActorCritic(nn.Module):
         current_std = self.std.detach()
         new_std = torch.max(current_std, min_std.detach()).detach()
         self.std.data = new_std
+
+    def double_std(self):
+        current_std = self.std.detach()
+        current_std *= 2
+        current_std.detach()
+        self.std.data = current_std
+        self.std.data.requires_grad_(True)
 
 
 def get_activation(act_name):
