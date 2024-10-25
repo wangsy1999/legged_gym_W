@@ -233,6 +233,8 @@ class BaseTask:
             measured_height = self.root_states[:, 2].unsqueeze(1) - self.measured_heights
             measured_height = measured_height[robot_index, 0]
 
+            if hasattr(self, "ref_dof_pos"):
+                self.action_test_logger.log_state("dof_ref", self.ref_dof_pos[robot_index, :].detach().cpu().numpy())
             self.action_test_logger.log_states(
                 {
                     "dof_pos_target": self.actions[robot_index, :].detach().cpu().numpy()

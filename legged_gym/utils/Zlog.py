@@ -22,6 +22,7 @@ class zzs_basic_graph_logger:
         self.buffer = {
             "dof_pos_target": np.zeros((self.max_episode_length, self.num_agents, self.action_dim)),
             "dof_pos": np.zeros((self.max_episode_length, self.num_agents, self.action_dim)),
+            "dof_ref": np.zeros((self.max_episode_length, self.num_agents, self.action_dim)),
             "dof_vel": np.zeros((self.max_episode_length, self.num_agents, self.action_dim)),
             "dof_torque": np.zeros((self.max_episode_length, self.num_agents, self.action_dim)),
             "command_x": np.zeros((self.max_episode_length, self.num_agents)),
@@ -74,6 +75,8 @@ class zzs_basic_graph_logger:
             a = axs[i, 0]
             a.plot(time, self.buffer["dof_pos_target"][:, robot_index, i], label="target")
             a.plot(time, self.buffer["dof_pos"][:, robot_index, i], label="measured")
+            if "dof_ref" in self.buffer.keys():
+                a.plot(time, self.buffer["dof_ref"][:, robot_index, i], label="measured")
             a.set(xlabel="time [s]", ylabel="Position [rad]", title=f"DOF Position {self.dof_names[i]}")
             a.legend()
             a = axs[i, 1]

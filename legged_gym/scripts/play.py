@@ -55,7 +55,6 @@ def play(args):
     env_cfg.noise.add_noise = False
     env_cfg.domain_rand.randomize_friction = False
     env_cfg.domain_rand.push_robots = True
-
     # prepare environment
     env, _ = task_registry.make_env(name=args.task, args=args, env_cfg=env_cfg)
     obs = env.get_observations()
@@ -123,6 +122,8 @@ def play(args):
             if type(logger) is zzs_basic_graph_logger:
                 measured_height = env.root_states[:, 2].unsqueeze(1) - env.measured_heights
                 measured_height = measured_height[robot_index, 0]
+                if hasattr(env, "ref_dof_pos"):
+                    logger.log_state("dof_ref", env.ref_dof_pos[robot_index, :].detach().cpu().numpy())
                 logger.log_states(
                     {
                         "dof_pos_target": actions[robot_index, :].detach().cpu().numpy() * env.cfg.control.action_scale,
