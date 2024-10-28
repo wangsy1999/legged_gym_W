@@ -2,8 +2,6 @@
 
 Welcome to the ZZS version of rsl legged gym. This repository is forked from rsl legged gym, which is for my personal reseach purposes. For more information about my reseach, please visit [my blog](https://blog.zzshub.cn).
 
-**THIS REPO IS NOT STABLE, NEW FEATURES OR BUGS WILL BE ADDED OR FIXED OCCASIONALLY. PLEASE DO NOT USE IN PRODUCTION ENVIRNOMENT！**
-
 # Isaac Gym Environments for Legged Robots #
 
 This repository provides the environment used to train ANYmal (and other robots) to walk on rough terrain using NVIDIA's Isaac Gym.
