@@ -1,0 +1,477 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- This URDF was automatically created by SolidWorks to URDF Exporter! Originally created by Stephen Brawner (brawner@gmail.com) 
+     Commit Version: 1.6.0-1-g15f4949  Build Version: 1.6.7594.29634
+     For more information, please see http://wiki.ros.org/sw_urdf_exporter -->
+<robot
+  name="pf2">
+  <link
+    name="torso">
+    <inertial>
+      <origin
+        xyz="0.01278331 -0.00050323 0.04958380"
+        rpy="0 0 0" />
+      <mass
+        value="13.01467475" />
+      <inertia
+        ixx="0.15756795"
+        ixy="-0.00024240"
+        ixz="0.03700832"
+        iyy="0.14639276"
+        iyz="-0.00078108"
+        izz="0.10664206" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="../meshes/torso.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.75294 0.75294 0.75294 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="../meshes/torso.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <link
+    name="rhip">
+    <inertial>
+      <origin
+        xyz="0.00083719 0.01343983 0.00047521"
+        rpy="0 0 0" />
+      <mass
+        value="1.4024871" />
+      <inertia
+        ixx="0.00052950"
+        ixy="-0.00001614"
+        ixz="0.00000106"
+        iyy="0.00086862"
+        iyz="0.00000249"
+        izz="0.00077246" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="../meshes/rhip.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.75294 0.75294 0.75294 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="../meshes/rhip.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="rhiproll"
+    type="revolute">
+    <origin
+      xyz="0.027 -0.085 -0.0865"
+      rpy="0 0 0" />
+    <parent
+      link="torso" />
+    <child
+      link="rhip" />
+    <axis
+      xyz="1 0 0" />
+    <limit effort="195" lower="-0.5" upper="0.5" velocity="100"/>
+  </joint>
+  <link
+    name="rfem">
+    <inertial>
+      <origin
+        xyz="0.00078675 -0.06302990 -0.06912584"
+        rpy="0 0 0" />
+      <mass
+        value="2.51808857" />
+      <inertia
+        ixx="0.02894706"
+        ixy="0.00002237"
+        ixz="-0.00030675"
+        iyy="0.02841140"
+        iyz="-0.00406341"
+        izz="0.00269718" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="../meshes/rfem.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.75294 0.75294 0.75294 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="../meshes/rfem.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="rfempitch"
+    type="revolute">
+    <origin
+      xyz="0 0 0"
+      rpy="0 0 0" />
+    <parent
+      link="rhip" />
+    <child
+      link="rfem" />
+    <axis
+      xyz="0 -1 0" />
+    <limit effort="195" lower="-1.0" upper="1.0" velocity="100"/>
+  </joint>
+  <link
+    name="rtib">
+    <inertial>
+      <origin
+        xyz="0.00136640 0.00004521 -0.11556943"
+        rpy="0 0 0" />
+      <mass
+        value="0.40418829" />
+      <inertia
+        ixx="0.00374121"
+        ixy="-0.00000003"
+        ixz="0.00005805"
+        iyy="0.00374783"
+        iyz="0.00000211"
+        izz="0.00013391" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="../meshes/rtib.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.75294 0.75294 0.75294 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="../meshes/rtib.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="rtibpitch"
+    type="revolute">
+    <origin
+      xyz="0 -0.0385 -0.3"
+      rpy="0 0 0" />
+    <parent
+      link="rfem" />
+    <child
+      link="rtib" />
+    <axis
+      xyz="0 -1 0" />
+    <limit effort="195" lower="-1.0" upper="-0.03" velocity="100"/>
+  </joint>
+  <link
+    name="rfoot">
+    <inertial>
+      <origin
+        xyz="0.00000000 0.00000000 -0.02242056"
+        rpy="0 0 0" />
+      <mass
+        value="0.20000000" />
+      <inertia
+        ixx="0.00005883"
+        ixy="0.00000000"
+        ixz="0.00000000"
+        iyy="0.00005883"
+        iyz="0.00000000"
+        izz="0.00006037" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="../meshes/rfoot.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.75294 0.75294 0.75294 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="../meshes/rfoot.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="rfootfixed"
+    type="fixed">
+    <origin
+      xyz="0 0 -0.284"
+      rpy="0 0 0" />
+    <parent
+      link="rtib" />
+    <child
+      link="rfoot" />
+    <axis
+      xyz="0 0 0" />
+  </joint>
+  <link
+    name="lhip">
+    <inertial>
+      <origin
+        xyz="0.00083719 -0.01343789 -0.00047190"
+        rpy="0 0 0" />
+      <mass
+        value="1.40248713" />
+      <inertia
+        ixx="0.00052958"
+        ixy="0.00001630"
+        ixz="-0.00000078"
+        iyy="0.00086862"
+        iyz="0.00000256"
+        izz="0.00077254" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="../meshes/lhip.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.75294 0.75294 0.75294 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="../meshes/lhip.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="lhiproll"
+    type="revolute">
+    <origin
+      xyz="0.027 0.085 -0.0865"
+      rpy="0 0 0" />
+    <parent
+      link="torso" />
+    <child
+      link="lhip" />
+    <axis
+      xyz="1 0 0" />
+    <limit effort="195" lower="-0.5" upper="0.5" velocity="100"/>
+  </joint>
+  <link
+    name="lfem">
+    <inertial>
+      <origin
+        xyz="0.00066944 0.06295031 -0.06959369"
+        rpy="0 0 0" />
+      <mass
+        value="2.51800000" />
+      <inertia
+        ixx="0.02897947"
+        ixy="-0.00002869"
+        ixz="-0.00032347"
+        iyy="0.02848041"
+        iyz="0.00408938"
+        izz="0.00265993" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="../meshes/lfem.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.75294 0.75294 0.75294 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="../meshes/lfem.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="lfempitch"
+    type="revolute">
+    <origin
+      xyz="0 0 0"
+      rpy="0 0 0" />
+    <parent
+      link="lhip" />
+    <child
+      link="lfem" />
+    <axis
+      xyz="0 -1 0" />
+    <limit effort="195" lower="-1.0" upper="1.0" velocity="100"/>
+  </joint>
+  <link
+    name="ltib">
+    <inertial>
+      <origin
+        xyz="0.00136640 0.00004521 -0.11556943"
+        rpy="0 0 0" />
+      <mass
+        value="0.40418829" />
+      <inertia
+        ixx="0.00374121"
+        ixy="-0.00000003"
+        ixz="0.00005805"
+        iyy="0.00374783"
+        iyz="0.00000211"
+        izz="0.00013391" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="../meshes/ltib.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.75294 0.75294 0.75294 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="../meshes/ltib.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="ltibpitch"
+    type="revolute">
+    <origin
+      xyz="0 0.0385 -0.3"
+      rpy="0 0 0" />
+    <parent
+      link="lfem" />
+    <child
+      link="ltib" />
+    <axis
+      xyz="0 -1 0" />
+    <limit effort="195" lower="-1.0" upper="-0.03" velocity="100"/>
+  </joint>
+  <link
+    name="lfoot">
+    <inertial>
+      <origin
+        xyz="0.00000000 0.00000000 -0.02242056"
+        rpy="0 0 0" />
+      <mass
+        value="0.20000000" />
+      <inertia
+        ixx="0.00005883"
+        ixy="0.00000000"
+        ixz="0.00000000"
+        iyy="0.00005883"
+        iyz="0.00000000"
+        izz="0.00006037" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="../meshes/lfoot.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.75294 0.75294 0.75294 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="../meshes/lfoot.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="lfootfixed"
+    type="fixed">
+    <origin
+      xyz="0 0 -0.284"
+      rpy="0 0 0" />
+    <parent
+      link="ltib" />
+    <child
+      link="lfoot" />
+    <axis
+      xyz="0 0 0" />
+  </joint>
+</robot>
