@@ -325,7 +325,6 @@ class Pf2Env(Pf2BaseEnv):
 
         obs_buf_all = torch.stack([self.obs_history[i] for i in range(self.obs_history.maxlen)], dim=1)  # N,T,K
         self.obs_buf = obs_buf_all.reshape(self.num_envs, -1)  # N, T*K
-        self.obs_buf = torch.cat((self.obs_buf, self.base_lin_vel * self.obs_scales.lin_vel * 0.0), dim=-1)
         self.privileged_obs_buf = torch.cat([self.critic_history[i] for i in range(self.cfg.env.c_frame_stack)], dim=1)
 
     def reset_idx(self, env_ids):

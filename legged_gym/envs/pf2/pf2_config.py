@@ -43,7 +43,7 @@ class Pf2Cfg(BaseConfig):
         frame_stack = 50
         c_frame_stack = 6
         num_single_obs = 29
-        num_observations = int(frame_stack * num_single_obs + 3)
+        num_observations = int(frame_stack * num_single_obs)
         single_num_privileged_obs = 49
         num_privileged_obs = int(c_frame_stack * single_num_privileged_obs)
         num_actions = 6
