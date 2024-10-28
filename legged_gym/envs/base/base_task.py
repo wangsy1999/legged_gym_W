@@ -52,7 +52,9 @@ class BaseTask:
         # env device is GPU only if sim is on GPU and use_gpu_pipeline=True, otherwise returned tensors are copied to CPU by physX.
         if sim_device_type == "cuda" and sim_params.use_gpu_pipeline:
             self.device = self.sim_device
+            print("running simulation on cuda device: " + self.sim_device + str(self.sim_device_id))
         else:
+            print("running simulation on cpu.")
             self.device = "cpu"
 
         # graphics device for rendering, -1 for no rendering
@@ -231,6 +233,8 @@ class BaseTask:
             measured_height = self.root_states[:, 2].unsqueeze(1) - self.measured_heights
             measured_height = measured_height[robot_index, 0]
 
+            if hasattr(self, "ref_dof_pos"):
+                self.action_test_logger.log_state("dof_ref", self.ref_dof_pos[robot_index, :].detach().cpu().numpy())
             self.action_test_logger.log_states(
                 {
                     "dof_pos_target": self.actions[robot_index, :].detach().cpu().numpy()

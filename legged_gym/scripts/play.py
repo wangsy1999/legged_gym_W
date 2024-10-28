@@ -54,8 +54,7 @@ def play(args):
     env_cfg.terrain.curriculum = False
     env_cfg.noise.add_noise = False
     env_cfg.domain_rand.randomize_friction = False
-    env_cfg.domain_rand.push_robots = False
-
+    env_cfg.domain_rand.push_robots = True
     # prepare environment
     env, _ = task_registry.make_env(name=args.task, args=args, env_cfg=env_cfg)
     obs = env.get_observations()
@@ -69,7 +68,7 @@ def play(args):
         path = os.path.join(
             LEGGED_GYM_ROOT_DIR,
             "logs",
-            train_cfg.runner.experiment_name,
+            args.task,
             "exported",
             "policies",
         )
@@ -77,7 +76,7 @@ def play(args):
         print("Exported policy as jit script to: ", path)
 
     stop_state_log = 300  # number of steps before plotting states
-    robot_index = [9, 10]  # which robot is used for logging
+    robot_index = [0]  # which robot is used for logging
     joint_index = 0  # which joint is used for logging
 
     if USE_ZZS_LOGGER:
@@ -108,7 +107,7 @@ def play(args):
                 filename = os.path.join(
                     LEGGED_GYM_ROOT_DIR,
                     "logs",
-                    train_cfg.runner.experiment_name,
+                    args.task,
                     "exported",
                     "frames",
                     f"{img_idx}.png",
@@ -123,6 +122,8 @@ def play(args):
             if type(logger) is zzs_basic_graph_logger:
                 measured_height = env.root_states[:, 2].unsqueeze(1) - env.measured_heights
                 measured_height = measured_height[robot_index, 0]
+                if hasattr(env, "ref_dof_pos"):
+                    logger.log_state("dof_ref", env.ref_dof_pos[robot_index, :].detach().cpu().numpy())
                 logger.log_states(
                     {
                         "dof_pos_target": actions[robot_index, :].detach().cpu().numpy() * env.cfg.control.action_scale,
@@ -175,7 +176,7 @@ if __name__ == "__main__":
     EXPORT_POLICY = True
     RECORD_FRAMES = False
     MOVE_CAMERA = False
-    USE_ZZS_LOGGER = False
+    USE_ZZS_LOGGER = True
     args = get_args()
     print_welcome_message()
     play(args)

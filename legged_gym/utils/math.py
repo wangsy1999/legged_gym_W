@@ -43,7 +43,6 @@ def quat_apply_yaw(quat, vec):
     return quat_apply(quat_yaw, vec)
 
 
-# TODO: remove these comments
 # @ torch.jit.script
 def quat_rotate_yaw(quat, vec):
     ori_shape = vec.shape

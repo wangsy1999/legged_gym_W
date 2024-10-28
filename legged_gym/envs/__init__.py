@@ -40,6 +40,8 @@ from .cassie.cassie_config import CassieRoughCfg, CassieRoughCfgPPO
 from .a1.a1_config import A1RoughCfg, A1RoughCfgPPO
 from .cartpole2.cartpole2 import Cartpole2Task
 from .cartpole2.cartpole2_config import Cartpole2Config, Cartpole2ConfigPPO
+from .pf2.pf2_env import Pf2Env
+from .pf2.pf2_config import Pf2Cfg, Pf2CfgPPO
 
 
 import os
@@ -52,3 +54,4 @@ task_registry.register("anymal_b", Anymal, AnymalBRoughCfg(), AnymalBRoughCfgPPO
 task_registry.register("a1", LeggedRobot, A1RoughCfg(), A1RoughCfgPPO())
 task_registry.register("cassie", Cassie, CassieRoughCfg(), CassieRoughCfgPPO())
 task_registry.register("cartpole2", Cartpole2Task, Cartpole2Config(), Cartpole2ConfigPPO())
+task_registry.register("pf2", Pf2Env, Pf2Cfg(), Pf2CfgPPO())

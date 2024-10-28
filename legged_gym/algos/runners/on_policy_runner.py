@@ -35,10 +35,13 @@ import statistics
 
 from torch.utils.tensorboard import SummaryWriter
 import torch
+import torch.nn as nn
 
 from legged_gym.algos.modules import ActorCritic, ActorCriticRecurrent
+from legged_gym.algos.algorithms.ppo import PPO
 from legged_gym.algos.env import VecEnv
 from legged_gym.algos.algo_registry import get_algo_class
+from legged_gym.algos.algo_registry import get_net_class
 
 
 class OnPolicyRunner:
@@ -52,12 +55,12 @@ class OnPolicyRunner:
             num_critic_obs = self.env.num_privileged_obs
         else:
             num_critic_obs = self.env.num_obs
-        actor_critic_class = eval(self.cfg["policy_class_name"])  # ActorCritic
+        actor_critic_class = get_net_class(self.cfg["policy_class_name"])  # ActorCritic
         actor_critic: ActorCritic = actor_critic_class(
             self.env.num_obs, num_critic_obs, self.env.num_actions, **self.policy_cfg
         ).to(self.device)
         alg_class = get_algo_class(self.cfg["algorithm_class_name"])  # PPO
-        self.alg = alg_class(actor_critic, device=self.device, **self.alg_cfg)
+        self.alg: PPO = alg_class(actor_critic, device=self.device, **self.alg_cfg)
         self.num_steps_per_env = self.cfg["num_steps_per_env"]
         self.save_interval = self.cfg["save_interval"]
 
@@ -252,6 +255,11 @@ class OnPolicyRunner:
     def load(self, path, load_optimizer=True):
         loaded_dict = torch.load(path)
         self.alg.actor_critic.load_state_dict(loaded_dict["model_state_dict"])
+        # self.alg.actor_critic.double_std()
+        # self.alg.actor_critic.double_std()
+        # self.alg.actor_critic.double_std()
+        # self.alg.actor_critic.double_std()
+
         if load_optimizer:
             self.alg.optimizer.load_state_dict(loaded_dict["optimizer_state_dict"])
         self.current_learning_iteration = loaded_dict["iter"]

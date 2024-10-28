@@ -28,7 +28,12 @@
 #
 # Copyright (c) 2021 ETH Zurich, Nikita Rudin
 
-from .algo_registry import regist_algo
+from .algo_registry import regist_algo, regist_net
 from .algorithms.ppo import PPO
 
+from .modules.actor_critic import ActorCritic
+from .modules.actor_critic_recurrent import ActorCriticRecurrent
+
 regist_algo("PPO", PPO)
+regist_net("ActorCritic", ActorCritic)
+regist_net("ActorCriticRecurrent", ActorCriticRecurrent)
