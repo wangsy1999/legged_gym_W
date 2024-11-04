@@ -313,20 +313,22 @@ def export_policy_as_jit(actor_critic, path):
 
         example = torch.ones((1, actor_critic.mlp_input_dim_a)).to("cpu")
         path2 = os.path.join(path, "policy_1_traced.pt")
-        traced_script_module2 = torch.jit.trace(model, example)
-        traced_script_module2.save(path2)
+        model_trace = copy.deepcopy(actor_critic).to("cpu")
+        model_trace.export_traced_model(path2)
+        # traced_script_module2 = torch.jit.trace(model_trace, example)  # FIXME: fix standalone critic model
+        # traced_script_module2.save(path2)
 
         # export to ONNX
-        path3 = os.path.join(path, "policy_1.onnx")
-        torch.onnx.export(
-            model=traced_script_module2,
-            args=example,
-            f=path3,
-            verbose=False,
-            input_names=["observation"],
-            output_names=["action"],
-            opset_version=17,
-        )
+        # path3 = os.path.join(path, "policy_1.onnx")
+        # torch.onnx.export(
+        #     model=traced_script_module2,
+        #     args=example,
+        #     f=path3,
+        #     verbose=False,
+        #     input_names=["observation"],
+        #     output_names=["action"],
+        #     opset_version=17,
+        # )
 
 
 class PolicyExporterLSTM(torch.nn.Module):

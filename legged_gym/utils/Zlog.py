@@ -31,6 +31,9 @@ class zzs_basic_graph_logger:
             "base_vel_x": np.zeros((self.max_episode_length, self.num_agents)),
             "base_vel_y": np.zeros((self.max_episode_length, self.num_agents)),
             "base_vel_z": np.zeros((self.max_episode_length, self.num_agents)),
+            "pred_lin_vel_x": np.zeros((self.max_episode_length, self.num_agents)),
+            "pred_lin_vel_y": np.zeros((self.max_episode_length, self.num_agents)),
+            "pred_lin_vel_z": np.zeros((self.max_episode_length, self.num_agents)),
             "base_vel_yaw": np.zeros((self.max_episode_length, self.num_agents)),
             "contact_forces_z": np.zeros((self.max_episode_length, self.num_agents, 2)),
             "base_height": np.zeros((self.max_episode_length, self.num_agents)),
@@ -97,11 +100,15 @@ class zzs_basic_graph_logger:
         a = axs[0, 0]
         a.plot(time, self.buffer["command_x"][:, robot_index], label="commanded")
         a.plot(time, self.buffer["base_vel_x"][:, robot_index], label="measured")
+        if "pred_lin_vel_x" in self.buffer.keys():
+            a.plot(time, self.buffer["pred_lin_vel_x"][:, robot_index], label="predicted")
         a.set(xlabel="time [s]", ylabel="base lin vel [m/s]", title="Base velocity x")
         a.legend()
         a = axs[0, 1]
         a.plot(time, self.buffer["command_y"][:, robot_index], label="commanded")
         a.plot(time, self.buffer["base_vel_y"][:, robot_index], label="measured")
+        if "pred_lin_vel_y" in self.buffer.keys():
+            a.plot(time, self.buffer["pred_lin_vel_y"][:, robot_index], label="predicted")
         a.set(xlabel="time [s]", ylabel="base lin vel [m/s]", title="Base velocity y")
         a.legend()
         a = axs[0, 2]
@@ -111,6 +118,8 @@ class zzs_basic_graph_logger:
         a.legend()
         a = axs[1, 0]
         a.plot(time, self.buffer["base_vel_z"][:, robot_index], label="measured")
+        if "pred_lin_vel_z" in self.buffer.keys():
+            a.plot(time, self.buffer["pred_lin_vel_z"][:, robot_index], label="predicted")
         a.set(xlabel="time [s]", ylabel="base lin vel [m/s]", title="Base velocity z")
         a.legend()
         a = axs[1, 1]
