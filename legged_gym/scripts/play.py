@@ -44,6 +44,8 @@ if os.path.exists("./legged_gym/envs/CustomEnvironments"):
 import numpy as np
 import torch
 
+import inspect
+
 
 def play(args):
     env_cfg, train_cfg = task_registry.get_cfgs(name=args.task)
@@ -55,6 +57,7 @@ def play(args):
     env_cfg.noise.add_noise = True
     env_cfg.domain_rand.randomize_friction = False
     env_cfg.domain_rand.push_robots = True
+    env_cfg.domain_rand.push_interval_s = 3.0
     # prepare environment
     env, _ = task_registry.make_env(name=args.task, args=args, env_cfg=env_cfg)
     obs = env.get_observations()
@@ -96,6 +99,10 @@ def play(args):
     camera_vel = np.array([1.0, 1.0, 0.0])
     camera_direction = np.array(env_cfg.viewer.lookat) - np.array(env_cfg.viewer.pos)
     img_idx = 0
+
+    file_path = inspect.getfile(env.__class__)
+    directory = os.path.dirname(file_path)
+    print(f"Playing {args.task} from {directory}")
 
     # run policy
     print("Running policy...")

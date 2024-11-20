@@ -35,6 +35,7 @@ import numpy as np
 import random
 from isaacgym import gymapi
 from isaacgym import gymutil
+import inspect
 
 from legged_gym import LEGGED_GYM_ROOT_DIR, LEGGED_GYM_ENVS_DIR
 
@@ -127,6 +128,16 @@ def launch_tensorboard(directory_path):
     tb.configure(argv=[None, "--logdir", directory_path, "--bind_all", "--port", "5000"])
     url = tb.launch()
     print("[info] Tensorboard session created: " + url)
+
+
+def cp_env(env, logdir):
+    file_path = inspect.getfile(env.__class__)
+    directory = os.path.dirname(file_path)
+    print("copying env from ", directory, " to ", logdir)
+    os.system(f"cp -r {directory} {logdir}")
+    # dir last name
+    dir_name = os.path.basename(os.path.normpath(directory))
+    os.system(f"rm -r {logdir}/{dir_name}/__pycache__")
 
 
 def print_welcome_message():
@@ -286,6 +297,12 @@ def get_args():
             "default": False,
             "help": "launch tensorboard backend",
         },
+        {
+            "name": "--backup_env",
+            "action": "store_true",
+            "default": False,
+            "help": "Backup env and config files in the log directory",
+        },
     ]
     # parse arguments
     args = gymutil.parse_arguments(description="RL Policy", custom_parameters=custom_parameters)
@@ -314,9 +331,11 @@ def export_policy_as_jit(actor_critic, path):
         example = torch.ones((1, actor_critic.mlp_input_dim_a)).to("cpu")
         path2 = os.path.join(path, "policy_1_traced.pt")
         model_trace = copy.deepcopy(actor_critic).to("cpu")
-        model_trace.export_traced_model(path2)
-        # traced_script_module2 = torch.jit.trace(model_trace, example)  # FIXME: fix standalone critic model
-        # traced_script_module2.save(path2)
+        if hasattr(model_trace, "export_traced_model"):
+            model_trace.export_traced_model(path2)
+        else:
+            traced_script_module2 = torch.jit.trace(model_trace, example)  # FIXME: fix standalone critic model
+            traced_script_module2.save(path2)
 
         # export to ONNX
         # path3 = os.path.join(path, "policy_1.onnx")

@@ -42,7 +42,7 @@ from legged_gym.utils import get_args, task_registry
 from legged_gym.utils import ExperimentLogger
 from legged_gym.utils import train_batch
 from legged_gym.utils import print_welcome_message
-from legged_gym.utils.helpers import launch_tensorboard
+from legged_gym.utils.helpers import launch_tensorboard, cp_env
 from legged_gym.utils.helpers import class_to_dict
 import torch
 
@@ -78,6 +78,10 @@ def train(args):
     exp_msg["env_cfg"] = class_to_dict(env_cfg)
     exp_msg["train_cfg"] = class_to_dict(train_cfg)
     ExperimentLogger.save_hyper_params(logdir, env_cfg, train_cfg)
+
+    if args.backup_env:
+        cp_env(env, ppo_runner.log_dir)
+
     ppo_runner.learn(
         num_learning_iterations=train_cfg.runner.max_iterations, init_at_random_ep_len=True, experiment_log=exp_msg
     )
