@@ -12,8 +12,9 @@
             "console": "integratedTerminal",
             "justMyCode": false,
             "args": [
-                "--task=BITeno_roboterax", //set task name
-                "--load_run=Nov02_17-58-24", //set policy to load
+                "--task=cartpole2", //set task name
+                "--sim_device=cuda:0", //set sim device
+                "--load_run=Jan00_00-00-00", //set policy to load
                 //NOTE: please set the checkpint according to the policy you want to load
                 "--num_envs=50", //set number of environments
             ]
@@ -26,24 +27,15 @@
             "console": "integratedTerminal",
             "justMyCode": false,
             "args": [
-                "--task=BITeno_roboterax", //set task name
-                //"--launch_tensorboard",
+                "--task=pf2", //set task name
+                "--sim_device=cuda:0", //set sim device
                 //"--headless" //uncomment to run without rendering
-                "--load_run=Nov02_10-05-20", //set pre-trained policy to load
-                "--resume", //set if resume training
-                "--max_iterations=20000",
-                //"--num_envs=1"
+                //"--load_run=Jan00_00-00-00", //set pre-trained policy to load
+                //"--resume", //set if resume training
+                "--max_iterations=20000", //set maximum number of iterations
+                "--backup_env" //set if backup environment
                 //NOTE: for more options, please refer to the get_args() funtion in legged_gym/utils/helper.py
             ],
-        },
-        {
-            // launch current file
-            "name": "Python: Current File",
-            "type": "python",
-            "request": "launch",
-            "program": "${file}",
-            "console": "integratedTerminal",
-            "justMyCode": false
         }
     ]
 }

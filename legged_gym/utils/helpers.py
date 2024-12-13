@@ -265,12 +265,6 @@ def get_args():
             "help": "Use horovod for multi-gpu training",
         },
         {
-            "name": "--rl_device",
-            "type": str,
-            "default": "cuda:0",
-            "help": "Device used by the RL algorithm, (cpu, gpu, cuda:0, cuda:1 etc..)",
-        },
-        {
             "name": "--num_envs",
             "type": int,
             "help": "Number of environments to create. Overrides config file if provided.",

@@ -59,6 +59,9 @@ class BaseTask:
 
         # graphics device for rendering, -1 for no rendering
         self.graphics_device_id = self.sim_device_id
+        if self.graphics_device_id == 1:
+            self.graphics_device_id = 2  # HACK: graphics device 1 and 0 can cause issues for no reason.
+
         if self.headless == True:
             self.graphics_device_id = -1
 
