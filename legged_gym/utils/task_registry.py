@@ -173,7 +173,7 @@ class TaskRegistry:
                 datetime.now().strftime("%b%d_%H-%M-%S") + "_" + train_cfg.runner.run_name,
             )
         train_cfg_dict = class_to_dict(train_cfg)
-        runner = OnPolicyRunner(env, train_cfg_dict, log_dir, device=args.rl_device)
+        runner = OnPolicyRunner(env, train_cfg_dict, log_dir, device=args.sim_device)
         # save resume path before creating a new log_dir
         resume = train_cfg.runner.resume
         if resume:

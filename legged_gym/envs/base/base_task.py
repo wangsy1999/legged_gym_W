@@ -59,6 +59,9 @@ class BaseTask:
 
         # graphics device for rendering, -1 for no rendering
         self.graphics_device_id = self.sim_device_id
+        if self.graphics_device_id == 1:
+            self.graphics_device_id = 2  # HACK: graphics device 1 and 0 can cause issues for no reason.
+
         if self.headless == True:
             self.graphics_device_id = -1
 
@@ -232,6 +235,17 @@ class BaseTask:
             robot_index = self.action_test_random_robot_index
             measured_height = self.root_states[:, 2].unsqueeze(1) - self.measured_heights
             measured_height = measured_height[robot_index, 0]
+
+            if hasattr(self, "predict_lin_vel"):
+                self.action_test_logger.log_state(
+                    "pred_lin_vel_x", self.predict_lin_vel[robot_index, 0].detach().cpu().numpy()
+                )
+                self.action_test_logger.log_state(
+                    "pred_lin_vel_y", self.predict_lin_vel[robot_index, 1].detach().cpu().numpy()
+                )
+                self.action_test_logger.log_state(
+                    "pred_lin_vel_z", self.predict_lin_vel[robot_index, 2].detach().cpu().numpy()
+                )
 
             if hasattr(self, "ref_dof_pos"):
                 self.action_test_logger.log_state("dof_ref", self.ref_dof_pos[robot_index, :].detach().cpu().numpy())

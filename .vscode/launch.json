@@ -27,11 +27,12 @@
             "justMyCode": false,
             "args": [
                 "--task=cartpole2", //set task name
-                "--launch_tensorboard",
+                "--sim_device=cuda:0", //set sim device
                 //"--headless" //uncomment to run without rendering
                 //"--load_run=Jan01_00-00-00", //set pre-trained policy to load
                 //"--resume", //set if resume training
-                "--max_iterations=3000"
+                "--max_iterations=20000", //set maximum number of iterations
+                "--backup_env" //set if backup environment
                 //NOTE: for more options, please refer to the get_args() funtion in legged_gym/utils/helper.py
             ],
         }

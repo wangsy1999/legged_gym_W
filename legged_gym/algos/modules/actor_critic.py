@@ -160,6 +160,11 @@ class ActorCritic(nn.Module):
         self.std.data = current_std
         self.std.data.requires_grad_(True)
 
+    def export_traced_model(self, path):
+        obs = torch.zeros(self.mlp_input_dim_a)
+        traced_script_module = torch.jit.trace(self.actor, obs)
+        traced_script_module.save(path)
+
 
 def get_activation(act_name):
     if act_name == "elu":

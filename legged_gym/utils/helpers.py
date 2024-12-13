@@ -35,6 +35,7 @@ import numpy as np
 import random
 from isaacgym import gymapi
 from isaacgym import gymutil
+import inspect
 
 from legged_gym import LEGGED_GYM_ROOT_DIR, LEGGED_GYM_ENVS_DIR
 
@@ -127,6 +128,16 @@ def launch_tensorboard(directory_path):
     tb.configure(argv=[None, "--logdir", directory_path, "--bind_all", "--port", "5000"])
     url = tb.launch()
     print("[info] Tensorboard session created: " + url)
+
+
+def cp_env(env, logdir):
+    file_path = inspect.getfile(env.__class__)
+    directory = os.path.dirname(file_path)
+    print("copying env from ", directory, " to ", logdir)
+    os.system(f"cp -r {directory} {logdir}")
+    # dir last name
+    dir_name = os.path.basename(os.path.normpath(directory))
+    os.system(f"rm -r {logdir}/{dir_name}/__pycache__")
 
 
 def print_welcome_message():
@@ -254,12 +265,6 @@ def get_args():
             "help": "Use horovod for multi-gpu training",
         },
         {
-            "name": "--rl_device",
-            "type": str,
-            "default": "cuda:0",
-            "help": "Device used by the RL algorithm, (cpu, gpu, cuda:0, cuda:1 etc..)",
-        },
-        {
             "name": "--num_envs",
             "type": int,
             "help": "Number of environments to create. Overrides config file if provided.",
@@ -285,6 +290,12 @@ def get_args():
             "action": "store_true",
             "default": False,
             "help": "launch tensorboard backend",
+        },
+        {
+            "name": "--backup_env",
+            "action": "store_true",
+            "default": False,
+            "help": "Backup env and config files in the log directory",
         },
     ]
     # parse arguments
@@ -313,20 +324,24 @@ def export_policy_as_jit(actor_critic, path):
 
         example = torch.ones((1, actor_critic.mlp_input_dim_a)).to("cpu")
         path2 = os.path.join(path, "policy_1_traced.pt")
-        traced_script_module2 = torch.jit.trace(model, example)
-        traced_script_module2.save(path2)
+        model_trace = copy.deepcopy(actor_critic).to("cpu")
+        if hasattr(model_trace, "export_traced_model"):
+            model_trace.export_traced_model(path2)
+        else:
+            traced_script_module2 = torch.jit.trace(model_trace, example)  # FIXME: fix standalone critic model
+            traced_script_module2.save(path2)
 
         # export to ONNX
-        path3 = os.path.join(path, "policy_1.onnx")
-        torch.onnx.export(
-            model=traced_script_module2,
-            args=example,
-            f=path3,
-            verbose=False,
-            input_names=["observation"],
-            output_names=["action"],
-            opset_version=17,
-        )
+        # path3 = os.path.join(path, "policy_1.onnx")
+        # torch.onnx.export(
+        #     model=traced_script_module2,
+        #     args=example,
+        #     f=path3,
+        #     verbose=False,
+        #     input_names=["observation"],
+        #     output_names=["action"],
+        #     opset_version=17,
+        # )
 
 
 class PolicyExporterLSTM(torch.nn.Module):
