@@ -1,3 +1,8 @@
+# Some customize of ZZS version of rsl legged gym
+
+Welcome! This repository is forked from zzs and originally from  rsl legged gym. This is for my own research purpose and I changed the on policy runner to let you train on a multi-GPU (cuda) server and play (or resume the training) on your own cuda device. I will also add some reward funcutions.
+
+
 # ZZS version of rsl legged gym
 
 Welcome to the ZZS version of rsl legged gym. This repository is forked from rsl legged gym, which is for my personal reseach purposes. For more information about my reseach, please visit [my blog](https://blog.zzshub.cn).
